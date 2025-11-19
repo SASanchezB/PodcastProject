@@ -11,29 +11,39 @@ public class PlayerCameraController : NetworkBehaviour
     public Camera playerCamera;
     [SerializeField] private Camera globalCamera;
 
+    [Header("Global Look Controller")]
+    public GlobalCameraMouseLook globalLook;
+
     [Header("Transforms")]
-    [Tooltip("Transform que representa la cabeza (la cámara debe ser hija de este)")]
     public Transform headTransform;
-    [Tooltip("Transform que representa el cuerpo (raíz del modelo)")]
     public Transform bodyTransform;
 
-    [Header("Suavizado del cuerpo")]
-    [Tooltip("Velocidad con la que el cuerpo gira para seguir la cabeza (mayor = más rápido)")]
+    [Header("Rotación")]
     public float bodyTurnSpeed = 8f;
+    public float maxHeadYawOffset = 35f;
+    public float bodyFollowSpeed = 4f;
+    public float headReturnSpeed = 6f;
 
-    private float rotationX = 0f; // pitch (arriba/abajo)
-    private float rotationY = 0f; // yaw (izq/der)
-    private bool isFPS = false;
-
-    // Fade
-    private CanvasGroup fadeGroup;
+    [Header("Fade")]
     public float fadeDuration = 0.4f;
 
-    // Rotación de la cabeza
-    private float currentHeadYaw = 0f; // Yaw local de la cabeza (solo visual)
-    public float maxHeadYawOffset = 35f; // Grados que puede girar la cabeza sola
-    public float bodyFollowSpeed = 4f;   // Velocidad con la que el cuerpo sigue
-    public float headReturnSpeed = 6f;   // Velocidad de "volver al centro" de la cabeza
+    private float rotationX = 0f;
+    private float rotationY = 0f;
+    private float currentHeadYaw = 0f;
+    private bool isFPS = false;
+
+    private CanvasGroup fadeGroup;
+
+    // Networking
+    private float sendTimer = 0f;
+    private const float sendInterval = 0.05f; // 20 Hz
+
+    // Remote interpolation
+    private Quaternion targetBodyRot;
+    private Quaternion smoothBodyRot;
+
+    private Quaternion targetHeadRot;
+    private Quaternion smoothHeadRot;
 
     private void Start()
     {
@@ -42,16 +52,20 @@ public class PlayerCameraController : NetworkBehaviour
             if (playerCamera != null)
                 playerCamera.enabled = false;
 
-            enabled = false;
+            enabled = true;
             return;
         }
 
-        // Buscar la cámara global
-        globalCamera = Camera.main;
-        if (globalCamera == null)
-            Debug.LogError("No se encontró ninguna cámara global con tag MainCamera.");
+        // Inicializar rotaciones
+        rotationY = bodyTransform.eulerAngles.y;
+        currentHeadYaw = 0f;
 
-        // Buscar fade screen
+        globalCamera = Camera.main;
+
+        if (globalCamera == null)
+            Debug.LogError("No se encontró cámara con tag MainCamera.");
+
+        // Fade screen
         GameObject fadeObj = GameObject.Find("FadeScreen");
         if (fadeObj != null)
         {
@@ -59,20 +73,21 @@ public class PlayerCameraController : NetworkBehaviour
             if (fadeGroup == null) fadeGroup = fadeObj.AddComponent<CanvasGroup>();
             fadeGroup.alpha = 0f;
         }
-        else
-        {
-            Debug.LogWarning("No existe FadeScreen en la escena.");
-        }
 
+        // Inicialmente en cámara global
         playerCamera.enabled = false;
         if (globalCamera != null) globalCamera.enabled = true;
+
+        // Activar control global
+        if (globalLook != null)
+            globalLook.SetUsingGlobalCamera(true);
     }
 
     private void Update()
     {
         if (!IsOwner)
         {
-            ApplyNetworkRotation(); // Para clientes que no son dueños
+            ApplyRemoteInterpolation();
             return;
         }
 
@@ -82,12 +97,28 @@ public class PlayerCameraController : NetworkBehaviour
         if (isFPS)
         {
             RotateCamera();
+            HandleNetworkSend();
+        }
+    }
 
-            // Enviar rotación al servidor
+
+    // -----------------------------
+    // NETWORK RATE LIMITING
+    // -----------------------------
+    private void HandleNetworkSend()
+    {
+        sendTimer += Time.deltaTime;
+        if (sendTimer >= sendInterval)
+        {
+            sendTimer = 0f;
             SendRotationToServerServerRpc(rotationX, rotationY, currentHeadYaw);
         }
     }
 
+
+    // -----------------------------
+    // FADE - CAMERA TOGGLE
+    // -----------------------------
     private IEnumerator ToggleCameraSmooth()
     {
         if (fadeGroup == null)
@@ -96,25 +127,20 @@ public class PlayerCameraController : NetworkBehaviour
             yield break;
         }
 
-        // FADE OUT
         yield return Fade(1f);
-
-        // Cambiar cámaras
         ToggleCamera();
-
-        // FADE IN
         yield return Fade(0f);
     }
 
     private IEnumerator Fade(float targetAlpha)
     {
         float start = fadeGroup.alpha;
-        float time = 0f;
+        float t = 0f;
 
-        while (time < fadeDuration)
+        while (t < fadeDuration)
         {
-            fadeGroup.alpha = Mathf.Lerp(start, targetAlpha, time / fadeDuration);
-            time += Time.deltaTime;
+            fadeGroup.alpha = Mathf.Lerp(start, targetAlpha, t / fadeDuration);
+            t += Time.deltaTime;
             yield return null;
         }
 
@@ -128,32 +154,38 @@ public class PlayerCameraController : NetworkBehaviour
         if (playerCamera != null) playerCamera.enabled = isFPS;
         if (globalCamera != null) globalCamera.enabled = !isFPS;
 
+        // Control global look ON/OFF
+        if (globalLook != null)
+            globalLook.SetUsingGlobalCamera(!isFPS);
+
         Cursor.lockState = isFPS ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !isFPS;
     }
 
+
+    // -----------------------------
+    // CAMERA ROTATION (OWNER)
+    // -----------------------------
     private void RotateCamera()
     {
         float mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
 
-        // ---- PITCH (arriba/abajo) ----
+        // Pitch
         rotationX -= mouseY;
         rotationX = Mathf.Clamp(rotationX, -80f, 80f);
 
-        // ---- YAW (izq/der) ----
+        // Yaw
         rotationY += mouseX;
         currentHeadYaw += mouseX;
         currentHeadYaw = Mathf.Clamp(currentHeadYaw, -maxHeadYawOffset, maxHeadYawOffset);
 
-        float headToBodyDiff = Mathf.DeltaAngle(bodyTransform.eulerAngles.y, rotationY);
-
+        // ROTACIÓN DEL CUERPO
         if (Mathf.Abs(currentHeadYaw) >= maxHeadYawOffset - 0.1f)
         {
-            Quaternion target = Quaternion.Euler(0f, rotationY, 0f);
+            Quaternion targetBody = Quaternion.Euler(0f, rotationY, 0f);
             bodyTransform.rotation = Quaternion.Slerp(
-                bodyTransform.rotation,
-                target,
+                bodyTransform.rotation, targetBody,
                 1f - Mathf.Exp(-bodyFollowSpeed * Time.deltaTime)
             );
 
@@ -161,10 +193,9 @@ public class PlayerCameraController : NetworkBehaviour
         }
         else
         {
-            Quaternion target = Quaternion.Euler(0f, rotationY - currentHeadYaw, 0f);
+            Quaternion targetBody = Quaternion.Euler(0f, rotationY - currentHeadYaw, 0f);
             bodyTransform.rotation = Quaternion.Slerp(
-                bodyTransform.rotation,
-                target,
+                bodyTransform.rotation, targetBody,
                 1f - Mathf.Exp(-(bodyFollowSpeed * 0.4f) * Time.deltaTime)
             );
         }
@@ -172,40 +203,45 @@ public class PlayerCameraController : NetworkBehaviour
         headTransform.localRotation = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
     }
 
-    // ------------------ NETWORK ------------------
 
+    // -----------------------------
+    // RPC SYNC
+    // -----------------------------
     [ServerRpc]
     private void SendRotationToServerServerRpc(float rotX, float rotY, float headYaw)
     {
-        // Propagar a todos los clientes desde el servidor
         UpdateRotationClientRpc(rotX, rotY, headYaw);
     }
 
     [ClientRpc]
     private void UpdateRotationClientRpc(float rotX, float rotY, float headYaw)
     {
-        if (IsOwner) return; // no aplicamos al dueño
+        if (IsOwner) return;
 
         rotationX = rotX;
         rotationY = rotY;
         currentHeadYaw = headYaw;
 
-        // Aplicar rotación al cuerpo
-        Quaternion targetBody = Quaternion.Euler(0f, rotationY, 0f);
-        bodyTransform.rotation = Quaternion.Slerp(
-            bodyTransform.rotation,
-            targetBody,
-            1f - Mathf.Exp(-bodyFollowSpeed * Time.deltaTime)
-        );
+        targetBodyRot = Quaternion.Euler(0f, rotationY, 0f);
+        Quaternion localHeadRot = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
 
-        // Aplicar rotación a la cabeza
-        headTransform.localRotation = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
+        targetHeadRot = targetBodyRot * localHeadRot;
     }
 
-    private void ApplyNetworkRotation()
+
+    // -----------------------------
+    // REMOTE INTERPOLATION
+    // -----------------------------
+    private void ApplyRemoteInterpolation()
     {
-        // Para clientes no dueños
-        // Solo por si quieres un extra de suavizado si se quiere
-        // (Aquí llamamos a UpdateRotationClientRpc indirectamente)
+        smoothBodyRot = Quaternion.Slerp(
+            smoothBodyRot, targetBodyRot, Time.deltaTime * 10f
+        );
+        bodyTransform.rotation = smoothBodyRot;
+
+        smoothHeadRot = Quaternion.Slerp(
+            smoothHeadRot, targetHeadRot, Time.deltaTime * 12f
+        );
+        headTransform.rotation = smoothHeadRot;
     }
 }

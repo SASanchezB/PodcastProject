@@ -154,13 +154,14 @@ MonoBehaviour:
   sensitivity: 200
   playerCamera: {fileID: 3380330742179832433}
   globalCamera: {fileID: 0}
+  globalLook: {fileID: 0}
   headTransform: {fileID: 5903801057074328598}
   bodyTransform: {fileID: 5516055339066356976}
   bodyTurnSpeed: 8
-  fadeDuration: 0.4
   maxHeadYawOffset: 35
   bodyFollowSpeed: 4
   headReturnSpeed: 6
+  fadeDuration: 0.4
 --- !u!1 &2610874710953266858
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,6 +292,7 @@ GameObject:
   - component: {fileID: 5270925905814617946}
   - component: {fileID: 3567345155174186914}
   - component: {fileID: -5552119944687528008}
+  - component: {fileID: 7313517799393408386}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -516,7 +518,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerScalerOnSpawn
   ShowTopMostFoldoutHeaderGroup: 1
   desiredScale: {x: 50, y: 50, z: 50}
-  desiredRotationEuler: {x: 0, y: 180, z: 0}
 --- !u!114 &-5552119944687528008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -530,6 +531,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawnRequester
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &7313517799393408386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2686576227144879076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca1098d04bf4edf4f8dea8d2d3354195, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRotationOnSpawn
+  ShowTopMostFoldoutHeaderGroup: 1
+  desiredRotation: {x: 0, y: 180, z: 0}
 --- !u!1 &4619257893218847546
 GameObject:
   m_ObjectHideFlags: 0

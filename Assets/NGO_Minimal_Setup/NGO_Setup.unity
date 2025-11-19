@@ -178,7 +178,6 @@ MonoBehaviour:
   spawnPointTag: SpawnPoints
   occupiedRadius: 1.2
   waitForPlayerTimeout: 2
-  spawnRotationEuler: {x: 0, y: 180, z: 0}
 --- !u!4 &35709161
 Transform:
   m_ObjectHideFlags: 0
@@ -1918,6 +1917,8 @@ GameObject:
   - component: {fileID: 639463840}
   - component: {fileID: 639463839}
   - component: {fileID: 639463842}
+  - component: {fileID: 639463843}
+  - component: {fileID: 639463844}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2043,6 +2044,49 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &639463843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639463838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 3232206597
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &639463844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639463838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ff4e77ece421984cb65eddd06f5b361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlobalCameraMouseLook
+  ShowTopMostFoldoutHeaderGroup: 1
+  mouseSensitivity: 4
+  rotationSmoothSpeed: 10
+  enableIdleLook: 1
+  idleLookSpeed: 25
+  idleLookAmplitude: 10
 --- !u!1 &654354182
 GameObject:
   m_ObjectHideFlags: 0
