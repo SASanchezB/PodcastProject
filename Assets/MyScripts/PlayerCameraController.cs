@@ -9,10 +9,7 @@ public class PlayerCameraController : NetworkBehaviour
 
     [Header("Referencias")]
     public Camera playerCamera;
-    [SerializeField] private Camera globalCamera;
-
-    [Header("Global Look Controller")]
-    public GlobalCameraMouseLook globalLook;
+    public Camera globalCamera;  // Esta cámara NO es Camera.main, la arrastrás vos desde la escena
 
     [Header("Transforms")]
     public Transform headTransform;
@@ -47,6 +44,8 @@ public class PlayerCameraController : NetworkBehaviour
 
     private void Start()
     {
+        Debug.Log("<color=yellow>[PlayerCameraController] START ejecutado</color>");
+
         if (!IsOwner)
         {
             if (playerCamera != null)
@@ -60,10 +59,8 @@ public class PlayerCameraController : NetworkBehaviour
         rotationY = bodyTransform.eulerAngles.y;
         currentHeadYaw = 0f;
 
-        globalCamera = Camera.main;
-
         if (globalCamera == null)
-            Debug.LogError("No se encontró cámara con tag MainCamera.");
+            Debug.LogError("[PlayerCameraController] La cámara global NO está asignada en el inspector!");
 
         // Fade screen
         GameObject fadeObj = GameObject.Find("FadeScreen");
@@ -74,13 +71,12 @@ public class PlayerCameraController : NetworkBehaviour
             fadeGroup.alpha = 0f;
         }
 
-        // Inicialmente en cámara global
-        playerCamera.enabled = false;
+        // Arrancamos mirando con cámara global
+        if (playerCamera != null) playerCamera.enabled = false;
         if (globalCamera != null) globalCamera.enabled = true;
 
-        // Activar control global
-        if (globalLook != null)
-            globalLook.SetUsingGlobalCamera(true);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     private void Update()
@@ -91,9 +87,15 @@ public class PlayerCameraController : NetworkBehaviour
             return;
         }
 
+        // -------------------------
+        // TOGGLE CÁMARA GLOBAL / FPS
+        // -------------------------
         if (Input.GetKeyDown(KeyCode.V))
             StartCoroutine(ToggleCameraSmooth());
 
+        // -------------------------
+        // CONTROL FPS
+        // -------------------------
         if (isFPS)
         {
             RotateCamera();
@@ -154,28 +156,24 @@ public class PlayerCameraController : NetworkBehaviour
         if (playerCamera != null) playerCamera.enabled = isFPS;
         if (globalCamera != null) globalCamera.enabled = !isFPS;
 
-        // Control global look ON/OFF
-        if (globalLook != null)
-            globalLook.SetUsingGlobalCamera(!isFPS);
-
         Cursor.lockState = isFPS ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !isFPS;
     }
 
 
     // -----------------------------
-    // CAMERA ROTATION (OWNER)
+    // FPS CAMERA ROTATION
     // -----------------------------
     private void RotateCamera()
     {
         float mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
 
-        // Pitch
+        // PITCH
         rotationX -= mouseY;
         rotationX = Mathf.Clamp(rotationX, -80f, 80f);
 
-        // Yaw
+        // YAW
         rotationY += mouseX;
         currentHeadYaw += mouseX;
         currentHeadYaw = Mathf.Clamp(currentHeadYaw, -maxHeadYawOffset, maxHeadYawOffset);
@@ -224,7 +222,6 @@ public class PlayerCameraController : NetworkBehaviour
 
         targetBodyRot = Quaternion.Euler(0f, rotationY, 0f);
         Quaternion localHeadRot = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
-
         targetHeadRot = targetBodyRot * localHeadRot;
     }
 

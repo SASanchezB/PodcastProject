@@ -2,9 +2,9 @@
 using Unity.Netcode;
 
 /// <summary>
-/// Colocar este script en la CÁMARA GLOBAL (solo 1 en la escena).
-/// Funciona incluso si la cámara NO es owner.
-/// Detecta input del cliente local y rota SU PLAYER.
+/// ESTE SCRIPT VA EN LA CÁMARA GLOBAL DE LA ESCENA (solo 1).
+/// Funciona aunque la cámara NO sea owner.
+/// Detecta input del cliente local y rota SU player local.
 /// </summary>
 public class GlobalCameraMouseLook : NetworkBehaviour
 {
@@ -14,17 +14,18 @@ public class GlobalCameraMouseLook : NetworkBehaviour
     [Header("Rotación suave")]
     public float rotationSmoothSpeed = 10f;
 
-    [Header("Idle Look (cuando no se mueve el mouse)")]
+    [Header("Idle Look")]
     public bool enableIdleLook = true;
     public float idleLookSpeed = 25f;
     public float idleLookAmplitude = 10f;
 
     [Header("Input")]
-    public bool requireMouseButton = true;   // Nuevo → requiere click izquierdo
+    public bool requireMouseButton = true;
 
     private float idleTimer = 0f;
-    private float currentYaw;
-    private float targetYaw;
+    private float currentYaw = 0f;
+    private float targetYaw = 0f;
+
     private bool usingGlobalCam = false;
 
     // Referencias del player local
@@ -32,65 +33,69 @@ public class GlobalCameraMouseLook : NetworkBehaviour
     private Transform localBodyTransform;
     private Transform localHeadTransform;
 
+    // ---------------------------------------------------------
+    // LLAMADO DESDE PlayerCameraController (o directamente desde tu lógica)
+    // ---------------------------------------------------------
     public void SetUsingGlobalCamera(bool active)
     {
         usingGlobalCam = active;
 
-        Debug.Log($"[GlobalCameraMouseLook] Using global camera = {active}");
+        Debug.Log($"[GlobalCameraMouseLook] usingGlobalCam = {active}");
 
         if (!active)
             idleTimer = 0f;
     }
 
+    // ---------------------------------------------------------
     private void Start()
     {
-        currentYaw = 0f;
-        targetYaw = 0f;
-
-        Debug.Log("[GlobalCameraMouseLook] Script iniciado correctamente.");
+        Debug.Log("[GlobalCameraMouseLook] START ejecutado.");
     }
 
+    // ---------------------------------------------------------
     private void Update()
     {
+        Debug.Log("[GlobalCameraMouseLook] Update() ejecutándose.");
+
         if (!usingGlobalCam)
         {
-            //Debug.Log("[GlobalCameraMouseLook] No usando cámara global.");
+            Debug.LogWarning("[GlobalCameraMouseLook] usingGlobalCam = FALSE → se corta Update.");
             return;
         }
 
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsClient)
         {
-            Debug.LogWarning("[GlobalCameraMouseLook] No hay NetworkManager o no es cliente.");
+            Debug.LogWarning("[GlobalCameraMouseLook] No NetworkManager o no es cliente.");
             return;
         }
 
         EnsureLocalPlayerReference();
         if (localBodyTransform == null)
         {
-            Debug.LogWarning("[GlobalCameraMouseLook] No se encontró el Body del jugador local.");
+            Debug.LogWarning("[GlobalCameraMouseLook] NO se encontró el player local aún.");
             return;
         }
 
-        //----------------------------
-        // 🔹 MOVIMIENTO SOLO SI CLICK IZQUIERDO
-        //----------------------------
+        // -----------------------------
+        // CLICK IZQUIERDO REQUERIDO
+        // -----------------------------
         bool mousePressed = Input.GetMouseButton(0);
 
         if (requireMouseButton && !mousePressed)
         {
-            //Debug.Log("[GlobalCameraMouseLook] Click no presionado → no rotamos.");
+            Debug.Log("[GlobalCameraMouseLook] Click no presionado → no rotamos.");
             return;
         }
 
-        //----------------------------
-        // 🔹 INPUT DEL MOUSE
-        //----------------------------
+        // -----------------------------
+        // MOUSE INPUT
+        // -----------------------------
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
         if (Mathf.Abs(mouseX) > 0.001f)
         {
-            Debug.Log("[GlobalCameraMouseLook] Mouse detectado → yaw rotando.");
+            Debug.Log("[GlobalCameraMouseLook] Mouse detectado → rotando yaw.");
             targetYaw += mouseX * mouseSensitivity;
             idleTimer = 0f;
         }
@@ -99,41 +104,50 @@ public class GlobalCameraMouseLook : NetworkBehaviour
             idleTimer += Time.deltaTime;
             targetYaw += Mathf.Sin(idleTimer * idleLookSpeed) * (idleLookAmplitude * Time.deltaTime);
 
-            Debug.Log("[GlobalCameraMouseLook] Idle look activo.");
+            Debug.Log("[GlobalCameraMouseLook] Idle look activado.");
         }
 
-        //----------------------------
-        // 🔹 ROTACIÓN SUAVE DEL CUERPO
-        //----------------------------
+        // -----------------------------
+        // ROTACIÓN SUAVE AL CUERPO
+        // -----------------------------
         currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * rotationSmoothSpeed);
 
         Quaternion bodyTarget = Quaternion.Euler(0f, currentYaw, 0f);
-        localBodyTransform.rotation = Quaternion.Slerp(localBodyTransform.rotation, bodyTarget, Time.deltaTime * rotationSmoothSpeed);
+
+        localBodyTransform.rotation = Quaternion.Slerp(
+            localBodyTransform.rotation,
+            bodyTarget,
+            Time.deltaTime * rotationSmoothSpeed
+        );
 
         Debug.Log("[GlobalCameraMouseLook] Rotando cuerpo del player.");
 
-        //----------------------------
-        // 🔹 MOVIMIENTO DE CABEZA (opcional)
-        //----------------------------
+        // -----------------------------
+        // ROTACIÓN DE CABEZA (OPCIONAL)
+        // -----------------------------
         if (localHeadTransform != null)
         {
             float headPitch = -mouseY * 0.2f;
             float headYaw = mouseX * 0.4f;
 
             Quaternion headTarget = Quaternion.Euler(headPitch, headYaw, 0f);
-            localHeadTransform.localRotation = Quaternion.Slerp(localHeadTransform.localRotation, headTarget, Time.deltaTime * rotationSmoothSpeed);
+
+            localHeadTransform.localRotation = Quaternion.Slerp(
+                localHeadTransform.localRotation,
+                headTarget,
+                Time.deltaTime * rotationSmoothSpeed
+            );
 
             Debug.Log("[GlobalCameraMouseLook] Rotando cabeza del player.");
         }
         else
         {
-            Debug.LogWarning("[GlobalCameraMouseLook] No se encontró HeadTransform. Solo se rota el cuerpo.");
+            Debug.LogWarning("[GlobalCameraMouseLook] No Head → solo rotamos cuerpo.");
         }
     }
 
-
     // ---------------------------------------------------------
-    // 🔎 LOCAL PLAYER CACHE
+    // BUSCA AL PLAYER LOCAL SIN IMPORTAR CUANDO SPAWNEA
     // ---------------------------------------------------------
     private void EnsureLocalPlayerReference()
     {
@@ -143,39 +157,38 @@ public class GlobalCameraMouseLook : NetworkBehaviour
         if (NetworkManager.Singleton == null)
             return;
 
-        ulong localClientId = NetworkManager.Singleton.LocalClientId;
+        ulong myId = NetworkManager.Singleton.LocalClientId;
 
-        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(localClientId, out var client))
+        if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(myId, out var client))
         {
-            if (client.PlayerObject != null)
-            {
-                localPlayerObject = client.PlayerObject;
-                localBodyTransform = localPlayerObject.transform;
+            Debug.LogWarning("[GlobalCameraMouseLook] No se encontró el ConnectedClient local.");
+            return;
+        }
 
-                Debug.Log("[GlobalCameraMouseLook] Encontrado Player local: " + localPlayerObject.name);
+        if (client.PlayerObject == null)
+        {
+            Debug.LogWarning("[GlobalCameraMouseLook] PlayerObject aún NO existe.");
+            return;
+        }
 
-                // Buscar la cabeza
-                Transform head = localBodyTransform.Find("Head");
-                if (head == null) head = localBodyTransform.Find("Cabeza");
+        localPlayerObject = client.PlayerObject;
+        localBodyTransform = localPlayerObject.transform;
 
-                if (head == null)
-                {
-                    Debug.LogWarning("[GlobalCameraMouseLook] No se encontró Head. Solo rotará el cuerpo.");
-                }
-                else
-                {
-                    localHeadTransform = head;
-                    Debug.Log("[GlobalCameraMouseLook] Head detectada correctamente.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("[GlobalCameraMouseLook] El PlayerObject no existe todavía.");
-            }
+        Debug.Log("[GlobalCameraMouseLook] Player local encontrado: " + localPlayerObject.name);
+
+        // Buscar cabeza
+        Transform head = localBodyTransform.Find("Head");
+        if (head == null) head = localBodyTransform.Find("head");
+        if (head == null) head = localBodyTransform.Find("Cabeza");
+
+        if (head != null)
+        {
+            localHeadTransform = head;
+            Debug.Log("[GlobalCameraMouseLook] Head detectada correctamente.");
         }
         else
         {
-            Debug.LogWarning("[GlobalCameraMouseLook] No se encontró el ConnectedClient local.");
+            Debug.LogWarning("[GlobalCameraMouseLook] No se encontró Head → solo rotamos cuerpo.");
         }
     }
 }
