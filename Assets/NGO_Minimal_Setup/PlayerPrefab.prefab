@@ -161,6 +161,7 @@ MonoBehaviour:
   bodyFollowSpeed: 4
   headReturnSpeed: 6
   fadeDuration: 0.4
+  keySensitivity: 80
 --- !u!1 &2610874710953266858
 GameObject:
   m_ObjectHideFlags: 0
@@ -292,7 +293,6 @@ GameObject:
   - component: {fileID: 3567345155174186914}
   - component: {fileID: -5552119944687528008}
   - component: {fileID: 7313517799393408386}
-  - component: {fileID: 8431753413792599687}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -405,7 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2072137055
+  GlobalObjectIdHash: 1712268375
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -545,27 +545,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRotationOnSpawn
   ShowTopMostFoldoutHeaderGroup: 1
   desiredRotation: {x: 0, y: 180, z: 0}
---- !u!114 &8431753413792599687
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2686576227144879076}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 582a9d3b6a0237542b929146ea133c15, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerLookByKeys
-  ShowTopMostFoldoutHeaderGroup: 1
-  headTransform: {fileID: 5903801057074328598}
-  bodyTransform: {fileID: 5516055339066356976}
-  headYawSpeed: 80
-  headPitchSpeed: 80
-  bodyTurnSpeed: 40
-  maxYaw: 35
-  maxPitch: 35
-  bodyFollowSpeed: 4
 --- !u!1 &4619257893218847546
 GameObject:
   m_ObjectHideFlags: 0

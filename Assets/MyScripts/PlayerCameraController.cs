@@ -42,6 +42,10 @@ public class PlayerCameraController : NetworkBehaviour
     private Quaternion targetHeadRot;
     private Quaternion smoothHeadRot;
 
+    [Header("Teclado")]
+    public float keySensitivity = 60f;
+
+
     private void Start()
     {
         Debug.Log("<color=yellow>[PlayerCameraController] START ejecutado</color>");
@@ -99,6 +103,11 @@ public class PlayerCameraController : NetworkBehaviour
         if (isFPS)
         {
             RotateCamera();
+            HandleNetworkSend();
+        }
+        else
+        {
+            RotateCameraByKeys();
             HandleNetworkSend();
         }
     }
@@ -166,8 +175,8 @@ public class PlayerCameraController : NetworkBehaviour
     // -----------------------------
     private void RotateCamera()
     {
-        float mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxisRaw("Mouse X") * sensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * sensitivity * Time.deltaTime;
 
         // PITCH
         rotationX -= mouseY;
@@ -241,4 +250,50 @@ public class PlayerCameraController : NetworkBehaviour
         );
         headTransform.rotation = smoothHeadRot;
     }
+
+    private void RotateCameraByKeys()
+    {
+        float inputYaw = 0f;
+        float inputPitch = 0f;
+
+        if (Input.GetKey(KeyCode.W)) inputPitch = -1f;
+        if (Input.GetKey(KeyCode.S)) inputPitch = 1f;
+        if (Input.GetKey(KeyCode.A)) inputYaw = -1f;
+        if (Input.GetKey(KeyCode.D)) inputYaw = 1f;
+
+        inputYaw *= keySensitivity * Time.deltaTime;
+        inputPitch *= keySensitivity * Time.deltaTime;
+
+        rotationX += inputPitch;
+        rotationX = Mathf.Clamp(rotationX, -80f, 80f);
+
+        rotationY += inputYaw;
+        currentHeadYaw += inputYaw;
+        currentHeadYaw = Mathf.Clamp(currentHeadYaw, -maxHeadYawOffset, maxHeadYawOffset);
+
+        // MISMA LÓGICA QUE FPS
+        if (Mathf.Abs(currentHeadYaw) >= maxHeadYawOffset - 0.1f)
+        {
+            Quaternion targetBody = Quaternion.Euler(0f, rotationY, 0f);
+            bodyTransform.rotation = Quaternion.Slerp(
+                bodyTransform.rotation,
+                targetBody,
+                1f - Mathf.Exp(-bodyFollowSpeed * Time.deltaTime)
+            );
+
+            currentHeadYaw = Mathf.Lerp(currentHeadYaw, 0f, Time.deltaTime * headReturnSpeed);
+        }
+        else
+        {
+            Quaternion targetBody = Quaternion.Euler(0f, rotationY - currentHeadYaw, 0f);
+            bodyTransform.rotation = Quaternion.Slerp(
+                bodyTransform.rotation,
+                targetBody,
+                1f - Mathf.Exp(-(bodyFollowSpeed * 0.4f) * Time.deltaTime)
+            );
+        }
+
+        headTransform.localRotation = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
+    }
+
 }
