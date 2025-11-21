@@ -20,6 +20,7 @@ public class PlayerCameraController : NetworkBehaviour
     public float maxHeadYawOffset = 35f;
     public float bodyFollowSpeed = 4f;
     public float headReturnSpeed = 6f;
+    public float plusKeyRotation = 2f;
 
     [Header("Fade")]
     public float fadeDuration = 0.4f;
@@ -294,6 +295,22 @@ public class PlayerCameraController : NetworkBehaviour
         }
 
         headTransform.localRotation = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
+
+        //
+
+        // --- ROTACIÓN DEL CUERPO (Q - E) --- ESTO SE PUEDE COMENTAR PORQUE GENERA BUGS
+        if (Input.GetKey(KeyCode.Q))
+        {
+            rotationY -= bodyTurnSpeed * Time.deltaTime * plusKeyRotation;
+            bodyTransform.rotation = Quaternion.Euler(0f, rotationY, 0f);
+        }
+
+        if (Input.GetKey(KeyCode.E))
+        {
+            rotationY += bodyTurnSpeed * Time.deltaTime * plusKeyRotation;
+            bodyTransform.rotation = Quaternion.Euler(0f, rotationY, 0f);
+        }
+
     }
 
 }

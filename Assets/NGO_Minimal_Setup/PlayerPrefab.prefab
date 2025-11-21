@@ -160,6 +160,7 @@ MonoBehaviour:
   maxHeadYawOffset: 35
   bodyFollowSpeed: 4
   headReturnSpeed: 6
+  plusKeyRotation: 10
   fadeDuration: 0.4
   keySensitivity: 80
 --- !u!1 &2610874710953266858
