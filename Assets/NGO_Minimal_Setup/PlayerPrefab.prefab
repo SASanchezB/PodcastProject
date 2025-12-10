@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2094680512254023622}
   - component: {fileID: 5592420439629552165}
   - component: {fileID: 1847857911318525871}
-  - component: {fileID: 670728450795092231}
   - component: {fileID: 5554046941532062547}
   m_Layer: 0
   m_Name: Canvas
@@ -104,19 +103,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &670728450795092231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 419456853700352844}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca8642266b9131d468d6ce3d4c0b86f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerNameDisplay
-  nameText: {fileID: 5593107582996088059}
 --- !u!114 &5554046941532062547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,6 +409,7 @@ GameObject:
   - component: {fileID: 3567345155174186914}
   - component: {fileID: -5552119944687528008}
   - component: {fileID: 7313517799393408386}
+  - component: {fileID: 736984514066136353}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -676,6 +663,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRotationOnSpawn
   ShowTopMostFoldoutHeaderGroup: 1
   desiredRotation: {x: 0, y: 180, z: 0}
+--- !u!114 &736984514066136353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2686576227144879076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8d47e802901ef8468791679db90b082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerName
+  ShowTopMostFoldoutHeaderGroup: 1
+  nameText: {fileID: 5593107582996088059}
 --- !u!1 &4619257893218847546
 GameObject:
   m_ObjectHideFlags: 0
