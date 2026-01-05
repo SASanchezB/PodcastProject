@@ -17,18 +17,17 @@ public class NetworkPlayerName : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         playerName.OnValueChanged += OnNameChanged;
-
         nameText.text = playerName.Value.ToString();
 
-        // 🔥 SOLO el player local aplica el nombre pendiente
         if (IsOwner && !string.IsNullOrWhiteSpace(PlayerNameUI.PendingPlayerName))
         {
-            Debug.Log("[NetworkPlayerName] Aplicando nombre pendiente: " +
-                      PlayerNameUI.PendingPlayerName);
-
             SubmitNameServerRpc(PlayerNameUI.PendingPlayerName);
+
+            // Opcional: limpiar cache
+            // PlayerNameUI.PendingPlayerName = null;
         }
     }
+
 
     private void OnNameChanged(FixedString128Bytes oldValue, FixedString128Bytes newValue)
     {
