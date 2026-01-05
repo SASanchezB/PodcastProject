@@ -18,13 +18,15 @@ public class NetworkPlayerName : NetworkBehaviour
     {
         playerName.OnValueChanged += OnNameChanged;
 
-        // Mostrar valor actual
         nameText.text = playerName.Value.ToString();
 
-        if (IsOwner)
+        // 🔥 SOLO el player local aplica el nombre pendiente
+        if (IsOwner && !string.IsNullOrWhiteSpace(PlayerNameUI.PendingPlayerName))
         {
-            string localName = PlayerPrefs.GetString("PlayerName", "Player");
-            SubmitNameServerRpc(localName);
+            Debug.Log("[NetworkPlayerName] Aplicando nombre pendiente: " +
+                      PlayerNameUI.PendingPlayerName);
+
+            SubmitNameServerRpc(PlayerNameUI.PendingPlayerName);
         }
     }
 
@@ -36,6 +38,9 @@ public class NetworkPlayerName : NetworkBehaviour
     [ServerRpc]
     private void SubmitNameServerRpc(string newName)
     {
+        if (string.IsNullOrWhiteSpace(newName))
+            newName = "Player";
+
         playerName.Value = new FixedString128Bytes(newName);
     }
 }
