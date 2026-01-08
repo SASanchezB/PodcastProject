@@ -11,7 +11,7 @@ public class PlayerNameUI : MonoBehaviour
 
     private void Awake()
     {
-        // Cargar nombre guardado
+        // Cargar nombre guardado (puede ser vacío)
         if (PlayerPrefs.HasKey(PlayerNameKey))
         {
             string savedName = PlayerPrefs.GetString(PlayerNameKey);
@@ -19,40 +19,36 @@ public class PlayerNameUI : MonoBehaviour
 
             if (nameInputField != null)
                 nameInputField.text = savedName;
+        }
+        else
+        {
+            PendingPlayerName = "";
+        }
 
-            Debug.Log("Nombre cargado desde PlayerPrefs: " + savedName);
+        // Suscribirse al cambio del input
+        if (nameInputField != null)
+        {
+            nameInputField.onValueChanged.AddListener(OnNameChanged);
         }
     }
 
-    public void ConfirmPlayerName()
+    private void OnDestroy()
     {
-        if (nameInputField == null) return;
+        // Limpio listener para evitar leaks
+        if (nameInputField != null)
+        {
+            nameInputField.onValueChanged.RemoveListener(OnNameChanged);
+        }
+    }
 
-        string newName = nameInputField.text;
-
-        if (string.IsNullOrWhiteSpace(newName))
-            return;
-
-        // Guardar localmente
+    private void OnNameChanged(string newName)
+    {
+        // Acepta vacío o espacios
         PendingPlayerName = newName;
 
-        // Persistir entre sesiones
         PlayerPrefs.SetString(PlayerNameKey, newName);
         PlayerPrefs.Save();
 
-        Debug.Log("Nombre guardado y persistido: " + newName);
-    }
-
-    public void ClearSavedPlayerName()
-    {
-        PlayerPrefs.DeleteKey(PlayerNameKey);
-        PlayerPrefs.Save();
-
-        PendingPlayerName = null;
-
-        if (nameInputField != null)
-            nameInputField.text = string.Empty;
-
-        Debug.Log("Nombre borrado de PlayerPrefs");
+        //Debug.Log($"Nombre actualizado automáticamente: '{newName}'");
     }
 }

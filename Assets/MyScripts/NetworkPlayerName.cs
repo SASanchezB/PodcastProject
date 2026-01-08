@@ -9,7 +9,7 @@ public class NetworkPlayerName : NetworkBehaviour
 
     private NetworkVariable<FixedString128Bytes> playerName =
         new NetworkVariable<FixedString128Bytes>(
-            new FixedString128Bytes("Player"),
+            new FixedString128Bytes(" "),
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server
         );
@@ -38,7 +38,7 @@ public class NetworkPlayerName : NetworkBehaviour
     private void SubmitNameServerRpc(string newName)
     {
         if (string.IsNullOrWhiteSpace(newName))
-            newName = "Player";
+            newName = " ";
 
         playerName.Value = new FixedString128Bytes(newName);
     }
