@@ -11,7 +11,7 @@ public class PlayerNameUI : MonoBehaviour
 
     private void Awake()
     {
-        // Cargar nombre guardado (puede ser vacío)
+        // cargar nombre del jugador al inicio (puede estar vacio si no se puso nada)
         if (PlayerPrefs.HasKey(PlayerNameKey))
         {
             string savedName = PlayerPrefs.GetString(PlayerNameKey);
@@ -25,7 +25,7 @@ public class PlayerNameUI : MonoBehaviour
             PendingPlayerName = "";
         }
 
-        // Suscribirse al cambio del input
+        // sub al evento de cambio de input
         if (nameInputField != null)
         {
             nameInputField.onValueChanged.AddListener(OnNameChanged);
@@ -34,7 +34,7 @@ public class PlayerNameUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Limpio listener para evitar leaks
+        // FALLA -> Acordarte de limpiar porfavor
         if (nameInputField != null)
         {
             nameInputField.onValueChanged.RemoveListener(OnNameChanged);
@@ -43,12 +43,9 @@ public class PlayerNameUI : MonoBehaviour
 
     private void OnNameChanged(string newName)
     {
-        // Acepta vacío o espacios
         PendingPlayerName = newName;
 
         PlayerPrefs.SetString(PlayerNameKey, newName);
         PlayerPrefs.Save();
-
-        //Debug.Log($"Nombre actualizado automáticamente: '{newName}'");
     }
 }

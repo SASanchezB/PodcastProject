@@ -10,7 +10,7 @@ public class PlayerSpawnRequester : NetworkBehaviour
         // SOLO en el servidor hacemos la asignación (evita race/client-side moves)
         if (IsServer)
         {
-            // Pedimos al sistema central que nos coloque en un spawn
+            // Pedimos al sistema central que nos coloque en un spawn porque si no, se sobrepone
             if (PlayerSpawnSystem.Instance != null)
             {
                 PlayerSpawnSystem.Instance.AssignSpawnForPlayer(this.NetworkObject);

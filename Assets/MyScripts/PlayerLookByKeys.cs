@@ -5,7 +5,7 @@ public class PlayerLookByKeys : NetworkBehaviour
 {
     [Header("Referencias")]
     public Transform headTransform;
-    public Transform bodyTransform; // PlayerPrefab root
+    public Transform bodyTransform; 
 
     [Header("Velocidades")]
     public float headYawSpeed = 45f;
@@ -19,8 +19,8 @@ public class PlayerLookByKeys : NetworkBehaviour
     [Header("Cuerpo sigue cabeza")]
     public float bodyFollowSpeed = 4f;
 
-    private float headYaw;   // izquierda / derecha
-    private float headPitch; // arriba / abajo
+    private float headYaw;   // axis para izquierda / derecha
+    private float headPitch; // axis para arriba / abajo
     private float bodyYaw;   // rotación del player
 
     private void Start()
@@ -41,37 +41,33 @@ public class PlayerLookByKeys : NetworkBehaviour
         ApplyBodyFollow();
     }
 
-    // ------------------------------------------
-    // 1) INPUT
-    // ------------------------------------------
+    // ---------------------INPUT---------------------
     private void HandleInput()
     {
-        // Rotación horizontal de cabeza (A–D)
+        // rotacion horizontal de cabeza -> A–D
         if (Input.GetKey(KeyCode.A))
             headYaw -= headYawSpeed * Time.deltaTime;
         if (Input.GetKey(KeyCode.D))
             headYaw += headYawSpeed * Time.deltaTime;
 
-        // Rotación vertical de cabeza (W–S)
+        // rotacion vertical de cabeza -> W–S
         if (Input.GetKey(KeyCode.W))
             headPitch -= headPitchSpeed * Time.deltaTime;
         if (Input.GetKey(KeyCode.S))
             headPitch += headPitchSpeed * Time.deltaTime;
 
-        // Clamp de cabeza
+        // clamp de cabeza
         headYaw = Mathf.Clamp(headYaw, -maxYaw, maxYaw);
         headPitch = Mathf.Clamp(headPitch, -maxPitch, maxPitch);
 
-        // Rotación del cuerpo (Q–E)
+        // rotacion del cuerpo -> Q–E
         if (Input.GetKey(KeyCode.Q))
             bodyYaw -= bodyTurnSpeed * Time.deltaTime;
         if (Input.GetKey(KeyCode.E))
             bodyYaw += bodyTurnSpeed * Time.deltaTime;
     }
 
-    // ------------------------------------------
-    // 2) HEAD ROTATION
-    // ------------------------------------------
+    // ------------------HEAD ROTATION------------------------
     private void ApplyHeadRotation()
     {
         headTransform.localRotation = Quaternion.Euler(
@@ -81,20 +77,18 @@ public class PlayerLookByKeys : NetworkBehaviour
         );
     }
 
-    // ------------------------------------------
-    // 3) BODY FOLLOWS THE HEAD
-    // ------------------------------------------
+    // -------------------QUE EL CUERPO GIRE CON LA CABEZA-----------------------
     private void ApplyBodyFollow()
     {
-        // Cuando la cabeza mira mucho hacia un lado, el cuerpo acompaña.
+        // cuando la cabeza mira mucho hacia un lado el cuerpo acompaña la rotacion
         float followThreshold = maxYaw * 0.8f;
 
         if (Mathf.Abs(headYaw) > followThreshold)
         {
-            // Cuerpo sigue
+            // la parte que el cuerpo sigo
             bodyYaw += headYaw * Time.deltaTime * bodyFollowSpeed;
 
-            // La cabeza vuelve un poco hacia el centro
+            // centrar la cabeza (vuelve al centro)
             headYaw = Mathf.Lerp(headYaw, 0f, Time.deltaTime * 2f);
         }
 

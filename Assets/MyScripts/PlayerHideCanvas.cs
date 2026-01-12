@@ -7,7 +7,6 @@ public class PlayerHideCanvas : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        // Busca todos los objetos con tag Canvas
         GameObject[] canvases = GameObject.FindGameObjectsWithTag("Canvas");
 
         foreach (var canvas in canvases)

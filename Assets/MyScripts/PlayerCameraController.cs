@@ -9,8 +9,7 @@ public class PlayerCameraController : NetworkBehaviour
 
     [Header("Referencias")]
     public Camera playerCamera;
-    public Camera globalCamera;  // Esta cámara NO es Camera.main, la arrastrás vos desde la escena
-
+    public Camera globalCamera;  // esta camara NO es Camera.main [es la que pasas desde el editor]
     [Header("Transforms")]
     public Transform headTransform;
     public Transform bodyTransform;
@@ -32,11 +31,11 @@ public class PlayerCameraController : NetworkBehaviour
 
     private CanvasGroup fadeGroup;
 
-    // Networking
+    // net-working
     private float sendTimer = 0f;
     private const float sendInterval = 0.05f; // 20 Hz
 
-    // Remote interpolation
+    // remote interpolation
     private Quaternion targetBodyRot;
     private Quaternion smoothBodyRot;
 
@@ -60,14 +59,14 @@ public class PlayerCameraController : NetworkBehaviour
             return;
         }
 
-        // Inicializar rotaciones
+        // inicializar rotaciones
         rotationY = bodyTransform.eulerAngles.y;
         currentHeadYaw = 0f;
 
         if (globalCamera == null)
             Debug.LogError("[PlayerCameraController] La cámara global NO está asignada en el inspector!");
 
-        // Fade screen
+        // FadeScreen
         GameObject fadeObj = GameObject.Find("FadeScreen");
         if (fadeObj != null)
         {
@@ -76,7 +75,7 @@ public class PlayerCameraController : NetworkBehaviour
             fadeGroup.alpha = 0f;
         }
 
-        // Arrancamos mirando con cámara global
+        // que mire a la camara global
         if (playerCamera != null) playerCamera.enabled = false;
         if (globalCamera != null) globalCamera.enabled = true;
 
@@ -92,15 +91,11 @@ public class PlayerCameraController : NetworkBehaviour
             return;
         }
 
-        // -------------------------
-        // TOGGLE CÁMARA GLOBAL / FPS
-        // -------------------------
+        // ------------TOGGLE CAMARA, ENTRE LA GLOBAL Y LA FPS-------------
         if (Input.GetKeyDown(KeyCode.V))
             StartCoroutine(ToggleCameraSmooth());
 
-        // -------------------------
-        // CONTROL FPS
-        // -------------------------
+        // -------------CONTROL FPS------------
         if (isFPS)
         {
             RotateCamera();
@@ -114,9 +109,7 @@ public class PlayerCameraController : NetworkBehaviour
     }
 
 
-    // -----------------------------
-    // NETWORK RATE LIMITING
-    // -----------------------------
+    // --------------NETWORK RATE LIMIT---------------
     private void HandleNetworkSend()
     {
         sendTimer += Time.deltaTime;
@@ -128,9 +121,7 @@ public class PlayerCameraController : NetworkBehaviour
     }
 
 
-    // -----------------------------
-    // FADE - CAMERA TOGGLE
-    // -----------------------------
+    // ------------CAMARA TOGGLE (FADE)-----------------
     private IEnumerator ToggleCameraSmooth()
     {
         if (fadeGroup == null)
@@ -171,9 +162,7 @@ public class PlayerCameraController : NetworkBehaviour
     }
 
 
-    // -----------------------------
-    // FPS CAMERA ROTATION
-    // -----------------------------
+    // -------------CAMARA ROTATION (primera persona)----------------
     private void RotateCamera()
     {
         float mouseX = Input.GetAxisRaw("Mouse X") * sensitivity * Time.deltaTime;
@@ -188,7 +177,7 @@ public class PlayerCameraController : NetworkBehaviour
         currentHeadYaw += mouseX;
         currentHeadYaw = Mathf.Clamp(currentHeadYaw, -maxHeadYawOffset, maxHeadYawOffset);
 
-        // ROTACIÓN DEL CUERPO
+        // ROTACION DEL CUERPO      espero que ahora ande el codigo de re carajo, ya 3 horas, quiero COMEEEEEER AAAAAAA
         if (Mathf.Abs(currentHeadYaw) >= maxHeadYawOffset - 0.1f)
         {
             Quaternion targetBody = Quaternion.Euler(0f, rotationY, 0f);
@@ -212,9 +201,7 @@ public class PlayerCameraController : NetworkBehaviour
     }
 
 
-    // -----------------------------
-    // RPC SYNC
-    // -----------------------------
+    // ------------RPC SYNC-----------------
     [ServerRpc]
     private void SendRotationToServerServerRpc(float rotX, float rotY, float headYaw)
     {
@@ -236,9 +223,7 @@ public class PlayerCameraController : NetworkBehaviour
     }
 
 
-    // -----------------------------
-    // REMOTE INTERPOLATION
-    // -----------------------------
+    // --------------REMOVE INTERPOLATION---------------
     private void ApplyRemoteInterpolation()
     {
         smoothBodyRot = Quaternion.Slerp(
@@ -272,7 +257,7 @@ public class PlayerCameraController : NetworkBehaviour
         currentHeadYaw += inputYaw;
         currentHeadYaw = Mathf.Clamp(currentHeadYaw, -maxHeadYawOffset, maxHeadYawOffset);
 
-        // MISMA LÓGICA QUE FPS
+        // MISMA LOGICA QUE FPS
         if (Mathf.Abs(currentHeadYaw) >= maxHeadYawOffset - 0.1f)
         {
             Quaternion targetBody = Quaternion.Euler(0f, rotationY, 0f);
@@ -296,7 +281,8 @@ public class PlayerCameraController : NetworkBehaviour
 
         headTransform.localRotation = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
 
-        //
+        // -obsoleto-
+        // -obsoleto-
 
         // --- ROTACIÓN DEL CUERPO (Q - E) --- ESTO SE PUEDE COMENTAR PORQUE GENERA BUGS
         if (Input.GetKey(KeyCode.Q))

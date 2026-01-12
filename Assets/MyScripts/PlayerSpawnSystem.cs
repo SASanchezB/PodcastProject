@@ -71,9 +71,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
         }
     }
 
-    // ------------------------
-    // API pública (robusta)
-    // ------------------------
+    // ------------Api publica [robustazo]------------
     /// <summary>
     /// Llamar desde el Player cuando su NetworkObject ya existe en el servidor.
     /// </summary>
@@ -120,9 +118,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
         //playerObject.transform.rotation = chosen.rotation;
     }
 
-    // ------------------------
-    // Manejo por callbacks (fallbacks)
-    // ------------------------
+    // ------------Manejo por callbacks (fallbacks)------------
     private void OnPlayerJoin(ulong clientId)
     {
         if (!IsServer) return;
@@ -161,9 +157,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
         }
     }
 
-    // ------------------------
-    // Lógica de selección de spawn
-    // ------------------------
+    // -----------LOGICA DE SELECCION DE SILLA DE SPAWN-------------
     private Transform GetFreeSpawnPoint(ulong clientId)
     {
         if (spawnPoints == null || spawnPoints.Count == 0) return null;
@@ -185,7 +179,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
             }
         }
 
-        // fallback aleatorio
+        // FALLBACK ALEATORIO
         int fallbackIdx = rng.Next(0, count);
         Debug.LogWarning($"GetFreeSpawnPoint: todos ocupados, fallback '{spawnPoints[fallbackIdx].name}'");
         return spawnPoints[fallbackIdx];

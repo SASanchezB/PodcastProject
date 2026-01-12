@@ -33,9 +33,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
     private Transform localBodyTransform;
     private Transform localHeadTransform;
 
-    // ---------------------------------------------------------
-    // LLAMADO DESDE PlayerCameraController (o directamente desde tu lógica)
-    // ---------------------------------------------------------
+    // -------------------------LLAMADO DESDE PlayerCameraController (o directamente desde mi logica)--------------------------------
     public void SetUsingGlobalCamera(bool active)
     {
         usingGlobalCam = active;
@@ -76,9 +74,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
             return;
         }
 
-        // -----------------------------
-        // CLICK IZQUIERDO REQUERIDO
-        // -----------------------------
+        // --------------SE REQUIERE DEL CLICK IZQUIERDO---------------
         bool mousePressed = Input.GetMouseButton(0);
 
         if (requireMouseButton && !mousePressed)
@@ -87,9 +83,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
             return;
         }
 
-        // -----------------------------
-        // MOUSE INPUT
-        // -----------------------------
+        // ---------------MOUSE INPUT--------------
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
@@ -107,9 +101,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
             Debug.Log("[GlobalCameraMouseLook] Idle look activado.");
         }
 
-        // -----------------------------
-        // ROTACIÓN SUAVE AL CUERPO
-        // -----------------------------
+        // -------------ROTACION DEL CUERPO----------------
         currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * rotationSmoothSpeed);
 
         Quaternion bodyTarget = Quaternion.Euler(0f, currentYaw, 0f);
@@ -122,9 +114,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
 
         Debug.Log("[GlobalCameraMouseLook] Rotando cuerpo del player.");
 
-        // -----------------------------
-        // ROTACIÓN DE CABEZA (OPCIONAL)
-        // -----------------------------
+        // --------------Rotacion de cabeza (se puede comentar si uno no lo quiere)---------------
         if (localHeadTransform != null)
         {
             float headPitch = -mouseY * 0.2f;
@@ -146,9 +136,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
         }
     }
 
-    // ---------------------------------------------------------
-    // BUSCA AL PLAYER LOCAL SIN IMPORTAR CUANDO SPAWNEA
-    // ---------------------------------------------------------
+    // ----------------------------BUSCA AL PLAYER LOCAL SIN IMPORTAR CUANDO SPAWNEA-----------------------------
     private void EnsureLocalPlayerReference()
     {
         if (localPlayerObject != null && localPlayerObject.IsSpawned)
