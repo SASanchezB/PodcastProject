@@ -6,6 +6,8 @@ using Unity.Collections;
 public class NetworkPlayerName : NetworkBehaviour
 {
     
+    //ESTE ES EL FUNCIONAL
+
     [SerializeField] private TMP_Text nameText;
 
     private NetworkVariable<FixedString128Bytes> playerName =
