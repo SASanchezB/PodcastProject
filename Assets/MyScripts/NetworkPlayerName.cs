@@ -5,7 +5,7 @@ using Unity.Collections;
 
 public class NetworkPlayerName : NetworkBehaviour
 {
-    /* -> OBSOLETO (ya se hizo en otro script, este no funcionaba muy bien
+    
     [SerializeField] private TMP_Text nameText;
 
     private NetworkVariable<FixedString128Bytes> playerName =
@@ -40,5 +40,5 @@ public class NetworkPlayerName : NetworkBehaviour
 
         playerName.Value = new FixedString128Bytes(newName);
     }
-    */
+    
 }

@@ -788,6 +788,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerName
   ShowTopMostFoldoutHeaderGroup: 1
+  nameText: {fileID: 5593107582996088059}
 --- !u!114 &2655553650590239857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1325,7 +1326,7 @@ GameObject:
   - component: {fileID: 2293083458310110205}
   - component: {fileID: 5593107582996088059}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: Text (Nombre)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
