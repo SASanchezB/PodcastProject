@@ -27,7 +27,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
         if (Instance == null) Instance = this;
         else Debug.LogWarning("Más de una instancia de PlayerSpawnSystem detectada.");
 
-        // Inicializamos RNG
+        // inicializa el RNG
         rng = new System.Random();
 
         // Cargar spawn points
