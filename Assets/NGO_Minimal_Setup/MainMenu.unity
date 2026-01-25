@@ -166,6 +166,7 @@ GameObject:
   - component: {fileID: 35709161}
   - component: {fileID: 35709159}
   - component: {fileID: 35709163}
+  - component: {fileID: 35709164}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -228,6 +229,19 @@ MonoBehaviour:
   valueText: {fileID: 717350698}
   minValue: 1
   maxValue: 3
+--- !u!114 &35709164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 35709158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 515a391072212bb44ad99eda5908be4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerNameUI
+  nameInputField: {fileID: 479421238}
 --- !u!1 &41371100
 GameObject:
   m_ObjectHideFlags: 0
