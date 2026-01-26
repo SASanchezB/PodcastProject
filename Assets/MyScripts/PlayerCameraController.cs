@@ -29,7 +29,7 @@ public class PlayerCameraController : NetworkBehaviour
     private float currentHeadYaw = 0f;
     private bool isFPS = false;
 
-    [SerializeField] private CanvasGroup fadeGroup;
+    private CanvasGroup fadeGroup;
 
     // net-working
     private float sendTimer = 0f;
@@ -67,7 +67,6 @@ public class PlayerCameraController : NetworkBehaviour
             Debug.LogError("[PlayerCameraController] La cámara global NO está asignada en el inspector!");
 
         // FadeScreen
-        /* // Dejo de funcionar cuando se separo por escenas
         GameObject fadeObj = GameObject.Find("FadeScreen");
         if (fadeObj != null)
         {
@@ -75,8 +74,6 @@ public class PlayerCameraController : NetworkBehaviour
             if (fadeGroup == null) fadeGroup = fadeObj.AddComponent<CanvasGroup>();
             fadeGroup.alpha = 0f;
         }
-        */
-        StartCoroutine(FindFadeCanvas());
 
         // que mire a la camara global
         if (playerCamera != null) playerCamera.enabled = false;
@@ -301,27 +298,5 @@ public class PlayerCameraController : NetworkBehaviour
         }
 
     }
-
-    // --------------BUSCAR CANVAS---------------
-    private IEnumerator FindFadeCanvas()
-    {
-        while (fadeGroup == null)
-        {
-            GameObject fadeObj = GameObject.FindGameObjectWithTag("FadeScreen");
-
-            if (fadeObj != null)
-            {
-                fadeGroup = fadeObj.GetComponent<CanvasGroup>();
-                if (fadeGroup == null)
-                    fadeGroup = fadeObj.AddComponent<CanvasGroup>();
-
-                fadeGroup.alpha = 0f;
-                yield break;
-            }
-
-            yield return null; // espera al próximo frame
-        }
-    }
-
 
 }

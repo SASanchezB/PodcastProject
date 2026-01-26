@@ -7,7 +7,6 @@ TagManager:
   - Canvas
   - UI
   - SpawnPoints
-  - FadeScreen
   layers:
   - Default
   - TransparentFX
