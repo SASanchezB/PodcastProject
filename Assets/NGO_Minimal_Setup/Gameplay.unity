@@ -253,7 +253,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawnSystem
   ShowTopMostFoldoutHeaderGroup: 1
   spawnPointTag: SpawnPoints
-  occupiedRadius: 1.2
   waitForPlayerTimeout: 2
 --- !u!4 &35709161
 Transform:
@@ -6016,7 +6015,7 @@ MonoBehaviour:
   ConnectionData:
     Address: 127.0.0.1
     Port: 7777
-    ServerListenAddress: 
+    ServerListenAddress: 127.0.0.1
   DebugSimulator:
     PacketDelayMS: 0
     PacketJitterMS: 0
