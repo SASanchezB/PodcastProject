@@ -18,6 +18,11 @@ public class PauseMenu : MonoBehaviour
             TogglePause();
     }
 
+    public void UnPause()
+    {
+        TogglePause();
+    }
+
     private void TogglePause()
     {
         isPaused = !isPaused;

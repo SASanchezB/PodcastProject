@@ -8,6 +8,9 @@ public class MainMenuManager : MonoBehaviour
     private void Start()
     {
         ShowPanel(panels[0]); //La pantalla principal, no se si se puede trabar en uno, por las dudas
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     public void ShowPanel(GameObject panelToShow)
