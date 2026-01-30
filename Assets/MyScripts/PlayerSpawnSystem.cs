@@ -62,13 +62,10 @@ public class PlayerSpawnSystem : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        if (!IsServer) return;
-
-        // Re-ubicamos clientes ya conectados si los hubiera (fallback)
-        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            StartCoroutine(TryMovePlayerCoroutine(client.ClientId));
-        }
+        // Eliminé el loop que re-ubicaba a todos los clientes conectados.
+        // Ahora solo se ubican nuevos jugadores cuando se unen, y los existentes se quedan en su lugar.
+        // Si necesitas ubicar a players ya conectados al inicio (por ejemplo, si el GameManager se spawnea tarde),
+        // puedes agregar lógica aquí, pero por ahora, asumimos que los players se ubican solo al unirse.
     }
 
     // ------------Api publica [robustazo]------------
