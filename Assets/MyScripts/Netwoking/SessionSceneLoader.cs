@@ -7,7 +7,7 @@ public class SessionSceneLoader : MonoBehaviour
 {
     [Header("Scenario Settings")]
     [SerializeField] private ScenarioCustomizationSelector scenarioSelector;  // Asigna el GameObject con ScenarioCustomizationSelector en el Inspector
-    [SerializeField] private string defaultScene = "Gameplay";  // Escena por defecto si no hay selección
+    [SerializeField] private string defaultScene = "Escena1";  // Escena por defecto (ej. "Escena1")
 
     private string SavePath =>
         Path.Combine(Application.persistentDataPath, "scenario.json");
@@ -19,17 +19,28 @@ public class SessionSceneLoader : MonoBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
-        // SOLO el host cambia de escena
+        // SOLO el host cambia de escena y sincroniza a todos
         if (!NetworkManager.Singleton.IsHost)
             return;
 
         // Obtén el nombre de la escena desde el selector o JSON
         string sceneToLoad = GetSelectedSceneName();
 
-        NetworkManager.Singleton.SceneManager.LoadScene(
-            sceneToLoad,
-            LoadSceneMode.Single
-        );
+        // CAMBIO: Usa NetworkManager.SceneManager para sincronizar la escena a todos los clientes
+        NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
+
+        // OPCIONAL: Notifica explícitamente a los clientes (por si LoadScene no sincroniza inmediatamente)
+        NotifyClientsToLoadSceneClientRpc(sceneToLoad);
+    }
+
+    [ClientRpc]
+    private void NotifyClientsToLoadSceneClientRpc(string sceneName)
+    {
+        // Los clientes cargan la escena si no son el host (el host ya la cargó)
+        if (!NetworkManager.Singleton.IsServer)
+        {
+            SceneManager.LoadScene(sceneName);
+        }
     }
 
     private string GetSelectedSceneName()

@@ -10,7 +10,7 @@ public class ScenarioCustomizationSelector : MonoBehaviour
     [Header("Customization Settings")]
     [SerializeField] private int minValue = 1;
     [SerializeField] private int maxValue = 3;  // Ajusta según cuántos escenarios tengas
-    [SerializeField] private string[] sceneNames = new string[] { "Escena1", "Escena2", "Escena3" };  // Nombres de escenas configurables desde el Inspector
+    [SerializeField] private string[] sceneNames = new string[] {  };  // Nombres de escenas configurables desde el Inspector
 
     private int currentValue;
 
