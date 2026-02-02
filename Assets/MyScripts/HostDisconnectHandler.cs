@@ -6,23 +6,43 @@ public class HostDisconnectHandler : NetworkBehaviour
 {
     [SerializeField] private string mainMenuScene = "MainMenu";
 
+    private void Start()
+    {
+        // Agrega callback para manejar desconexiones en clientes
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+    }
+
+    private void OnDestroy()
+    {
+        // Limpia el callback para evitar errores
+        if (NetworkManager.Singleton != null)
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+    }
+
     public void HostDisconnect()
     {
         if (!NetworkManager.Singleton.IsServer) return;
 
-        // Envía a todos los clientes al menú
-        ForceClientsToMenuClientRpc();
+        // Desconecta completamente la sesión
+        NetworkManager.Singleton.Shutdown();
 
-        // El host también se va al menú
+        // El host carga el menú después de desconectar
+        StartCoroutine(LoadMenuAfterShutdown());
+    }
+
+    private System.Collections.IEnumerator LoadMenuAfterShutdown()
+    {
+        // Espera a que Shutdown termine
+        yield return new WaitForSeconds(0.5f);
         SceneManager.LoadScene(mainMenuScene);
     }
 
-    [ClientRpc]
-    private void ForceClientsToMenuClientRpc()
+    private void OnClientDisconnect(ulong clientId)
     {
-        // Evita que el host ejecute esto dos veces
-        if (NetworkManager.Singleton.IsServer) return;
-
-        SceneManager.LoadScene(mainMenuScene);
+        // Si este cliente se desconecta (incluyendo por Shutdown del host), carga MainMenu
+        if (clientId == NetworkManager.Singleton.LocalClientId && !NetworkManager.Singleton.IsServer)
+        {
+            SceneManager.LoadScene(mainMenuScene);
+        }
     }
 }
