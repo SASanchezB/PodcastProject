@@ -1004,6 +1004,42 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "LookUp",
+                    "type": "Value",
+                    "id": "20e50d4a-1a66-49c8-a971-5f7f472bb5e8",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "LookDown",
+                    "type": "Value",
+                    "id": "3d0e4171-728c-4ae9-b6ba-dd64a7898329",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "LookRight",
+                    "type": "Value",
+                    "id": "5b3cbf9f-9d8a-4a29-8f82-7f6f33eb1fa8",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "LookLeft",
+                    "type": "Value",
+                    "id": "2b04c49f-4c8b-4f4a-8298-684d7fd89ba7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -1015,6 +1051,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleCamara",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "aa86a3f7-0174-4d19-8274-fcb0b612a93c",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LookUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "909afeac-eb2a-4b8e-9dd3-6c5016076de6",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LookDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "74b7eb45-11de-470d-a1e7-6078dfede6df",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LookRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "15d5449f-b4d6-4ecd-8946-b94d84a7146c",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LookLeft",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

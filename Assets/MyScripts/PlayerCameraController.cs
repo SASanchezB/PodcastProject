@@ -48,6 +48,12 @@ public class PlayerCameraController : NetworkBehaviour
     // INPUT SYSTEM
     private PlayerInput playerInput;
     private InputAction toggleCameraAction;
+    // Rotaciones InputSystem
+    private InputAction lookUpAction;
+    private InputAction lookDownAction;
+    private InputAction lookLeftAction;
+    private InputAction lookRightAction;
+
 
     // ================== NETCODE ==================
     public override void OnNetworkSpawn()
@@ -102,6 +108,17 @@ public class PlayerCameraController : NetworkBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        //
+        lookUpAction = playerInput.actions["LookUp"];
+        lookDownAction = playerInput.actions["LookDown"];
+        lookLeftAction = playerInput.actions["LookLeft"];
+        lookRightAction = playerInput.actions["LookRight"];
+
+        lookUpAction.Enable();
+        lookDownAction.Enable();
+        lookLeftAction.Enable();
+        lookRightAction.Enable();
     }
 
     private void OnDestroy()
@@ -269,10 +286,17 @@ public class PlayerCameraController : NetworkBehaviour
         float inputYaw = 0f;
         float inputPitch = 0f;
 
-        if (Input.GetKey(KeyCode.W)) inputPitch = -1f;
-        if (Input.GetKey(KeyCode.S)) inputPitch = 1f;
-        if (Input.GetKey(KeyCode.A)) inputYaw = -1f;
-        if (Input.GetKey(KeyCode.D)) inputYaw = 1f;
+        if (lookUpAction.ReadValue<float>() > 0f)
+            inputPitch -= 1f;
+
+        if (lookDownAction.ReadValue<float>() > 0f)
+            inputPitch += 1f;
+
+        if (lookLeftAction.ReadValue<float>() > 0f)
+            inputYaw -= 1f;
+
+        if (lookRightAction.ReadValue<float>() > 0f)
+            inputYaw += 1f;
 
         inputYaw *= keySensitivity * Time.deltaTime;
         inputPitch *= keySensitivity * Time.deltaTime;
@@ -293,6 +317,7 @@ public class PlayerCameraController : NetworkBehaviour
 
         headTransform.localRotation = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
     }
+
 
     // ================== LEGACY (NO SE BORRA) ==================
     public void OnToggleCamara()
