@@ -1,6 +1,7 @@
 ﻿using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class PlayerCameraController : NetworkBehaviour
 {
@@ -9,7 +10,7 @@ public class PlayerCameraController : NetworkBehaviour
 
     [Header("Referencias")]
     public Camera playerCamera;
-    public Camera globalCamera;  // esta camara NO es Camera.main [es la que pasas desde el editor]
+    public Camera globalCamera;
     [Header("Transforms")]
     public Transform headTransform;
     public Transform bodyTransform;
@@ -31,42 +32,63 @@ public class PlayerCameraController : NetworkBehaviour
 
     private CanvasGroup fadeGroup;
 
-    // net-working
+    // networking
     private float sendTimer = 0f;
-    private const float sendInterval = 0.05f; // 20 Hz
+    private const float sendInterval = 0.05f;
 
     // remote interpolation
     private Quaternion targetBodyRot;
     private Quaternion smoothBodyRot;
-
     private Quaternion targetHeadRot;
     private Quaternion smoothHeadRot;
 
     [Header("Teclado")]
     public float keySensitivity = 60f;
 
+    // INPUT SYSTEM
+    private PlayerInput playerInput;
+    private InputAction toggleCameraAction;
 
-    private void Start()
+    // ================== NETCODE ==================
+    public override void OnNetworkSpawn()
     {
-        Debug.Log("<color=yellow>[PlayerCameraController] START ejecutado</color>");
+        Debug.Log("<color=yellow>[PlayerCameraController] OnNetworkSpawn</color>");
 
         if (!IsOwner)
         {
             if (playerCamera != null)
                 playerCamera.enabled = false;
 
-            enabled = true;
             return;
         }
+
+        // Buscar PlayerInput en el prefab padre
+        playerInput = GetComponentInParent<PlayerInput>();
+
+        if (playerInput == null)
+        {
+            Debug.LogError("[PlayerCameraController] PlayerInput NO encontrado en el padre");
+            return;
+        }
+
+        toggleCameraAction = playerInput.actions["ToggleCamara"];
+
+        if (toggleCameraAction == null)
+        {
+            Debug.LogError("[PlayerCameraController] Action 'ToggleCamara' no existe");
+            return;
+        }
+
+        toggleCameraAction.performed += OnToggleCamaraInput;
 
         // inicializar rotaciones
         rotationY = bodyTransform.eulerAngles.y;
         currentHeadYaw = 0f;
 
         if (globalCamera == null)
-            Debug.LogError("[PlayerCameraController] La cámara global NO está asignada en el inspector!");
+            Debug.LogError("[PlayerCameraController] La cámara global NO está asignada");
 
-        // FadeScreen
+        // Fade
         GameObject fadeObj = GameObject.Find("FadeScreen");
         if (fadeObj != null)
         {
@@ -75,7 +97,6 @@ public class PlayerCameraController : NetworkBehaviour
             fadeGroup.alpha = 0f;
         }
 
-        // que mire a la camara global
         if (playerCamera != null) playerCamera.enabled = false;
         if (globalCamera != null) globalCamera.enabled = true;
 
@@ -83,6 +104,13 @@ public class PlayerCameraController : NetworkBehaviour
         Cursor.visible = true;
     }
 
+    private void OnDestroy()
+    {
+        if (toggleCameraAction != null)
+            toggleCameraAction.performed -= OnToggleCamaraInput;
+    }
+
+    // ================== UPDATE ==================
     private void Update()
     {
         if (!IsOwner)
@@ -91,11 +119,6 @@ public class PlayerCameraController : NetworkBehaviour
             return;
         }
 
-        // ------------TOGGLE CAMARA, ENTRE LA GLOBAL Y LA FPS-------------
-        if (Input.GetKeyDown(KeyCode.V))
-            StartCoroutine(ToggleCameraSmooth());
-
-        // -------------CONTROL FPS------------
         if (isFPS)
         {
             RotateCamera();
@@ -108,8 +131,18 @@ public class PlayerCameraController : NetworkBehaviour
         }
     }
 
+    // ================== INPUT CALLBACK ==================
+    private void OnToggleCamaraInput(InputAction.CallbackContext ctx)
+    {
+        Debug.Log("<color=green>[INPUT] ToggleCamara</color>");
 
-    // --------------NETWORK RATE LIMIT---------------
+        if (!IsOwner)
+            return;
+
+        StartCoroutine(ToggleCameraSmooth());
+    }
+
+    // ================== NETWORK ==================
     private void HandleNetworkSend()
     {
         sendTimer += Time.deltaTime;
@@ -120,8 +153,7 @@ public class PlayerCameraController : NetworkBehaviour
         }
     }
 
-
-    // ------------CAMARA TOGGLE (FADE)-----------------
+    // ================== CAMERA TOGGLE ==================
     private IEnumerator ToggleCameraSmooth()
     {
         if (fadeGroup == null)
@@ -161,23 +193,19 @@ public class PlayerCameraController : NetworkBehaviour
         Cursor.visible = !isFPS;
     }
 
-
-    // -------------CAMARA ROTATION (primera persona)----------------
+    // ================== FPS ROTATION ==================
     private void RotateCamera()
     {
         float mouseX = Input.GetAxisRaw("Mouse X") * sensitivity * Time.deltaTime;
         float mouseY = Input.GetAxisRaw("Mouse Y") * sensitivity * Time.deltaTime;
 
-        // PITCH
         rotationX -= mouseY;
         rotationX = Mathf.Clamp(rotationX, -80f, 80f);
 
-        // YAW
         rotationY += mouseX;
         currentHeadYaw += mouseX;
         currentHeadYaw = Mathf.Clamp(currentHeadYaw, -maxHeadYawOffset, maxHeadYawOffset);
 
-        // ROTACION DEL CUERPO      espero que ahora ande el codigo de re carajo, ya 3 horas, quiero COMEEEEEER AAAAAAA
         if (Mathf.Abs(currentHeadYaw) >= maxHeadYawOffset - 0.1f)
         {
             Quaternion targetBody = Quaternion.Euler(0f, rotationY, 0f);
@@ -200,8 +228,7 @@ public class PlayerCameraController : NetworkBehaviour
         headTransform.localRotation = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
     }
 
-
-    // ------------RPC SYNC-----------------
+    // ================== RPC ==================
     [ServerRpc]
     private void SendRotationToServerServerRpc(float rotX, float rotY, float headYaw)
     {
@@ -222,8 +249,7 @@ public class PlayerCameraController : NetworkBehaviour
         targetHeadRot = targetBodyRot * localHeadRot;
     }
 
-
-    // --------------REMOVE INTERPOLATION---------------
+    // ================== REMOTE ==================
     private void ApplyRemoteInterpolation()
     {
         smoothBodyRot = Quaternion.Slerp(
@@ -237,6 +263,7 @@ public class PlayerCameraController : NetworkBehaviour
         headTransform.rotation = smoothHeadRot;
     }
 
+    // ================== KEY ROTATION (LEGACY) ==================
     private void RotateCameraByKeys()
     {
         float inputYaw = 0f;
@@ -257,46 +284,19 @@ public class PlayerCameraController : NetworkBehaviour
         currentHeadYaw += inputYaw;
         currentHeadYaw = Mathf.Clamp(currentHeadYaw, -maxHeadYawOffset, maxHeadYawOffset);
 
-        // MISMA LOGICA QUE FPS
-        if (Mathf.Abs(currentHeadYaw) >= maxHeadYawOffset - 0.1f)
-        {
-            Quaternion targetBody = Quaternion.Euler(0f, rotationY, 0f);
-            bodyTransform.rotation = Quaternion.Slerp(
-                bodyTransform.rotation,
-                targetBody,
-                1f - Mathf.Exp(-bodyFollowSpeed * Time.deltaTime)
-            );
-
-            currentHeadYaw = Mathf.Lerp(currentHeadYaw, 0f, Time.deltaTime * headReturnSpeed);
-        }
-        else
-        {
-            Quaternion targetBody = Quaternion.Euler(0f, rotationY - currentHeadYaw, 0f);
-            bodyTransform.rotation = Quaternion.Slerp(
-                bodyTransform.rotation,
-                targetBody,
-                1f - Mathf.Exp(-(bodyFollowSpeed * 0.4f) * Time.deltaTime)
-            );
-        }
+        Quaternion targetBody = Quaternion.Euler(0f, rotationY - currentHeadYaw, 0f);
+        bodyTransform.rotation = Quaternion.Slerp(
+            bodyTransform.rotation,
+            targetBody,
+            1f - Mathf.Exp(-bodyFollowSpeed * Time.deltaTime)
+        );
 
         headTransform.localRotation = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
-
-        // -obsoleto-
-        // -obsoleto-
-
-        // --- ROTACIÓN DEL CUERPO (Q - E) --- ESTO SE PUEDE COMENTAR PORQUE GENERA BUGS
-        if (Input.GetKey(KeyCode.Q))
-        {
-            rotationY -= bodyTurnSpeed * Time.deltaTime * plusKeyRotation;
-            bodyTransform.rotation = Quaternion.Euler(0f, rotationY, 0f);
-        }
-
-        if (Input.GetKey(KeyCode.E))
-        {
-            rotationY += bodyTurnSpeed * Time.deltaTime * plusKeyRotation;
-            bodyTransform.rotation = Quaternion.Euler(0f, rotationY, 0f);
-        }
-
     }
 
+    // ================== LEGACY (NO SE BORRA) ==================
+    public void OnToggleCamara()
+    {
+        Debug.Log("OnToggleCamara (legacy) llamado");
+    }
 }
