@@ -9,6 +9,14 @@ public class SessionSceneLoader : MonoBehaviour
     [SerializeField] private ScenarioCustomizationSelector scenarioSelector;  // Asigna el GameObject con ScenarioCustomizationSelector en el Inspector
     [SerializeField] private string defaultScene = "Escena1";  // Escena por defecto (ej. "Escena1")
 
+    // Arrays de escenas por maxPlayers (debe coincidir con ScenarioCustomizationSelector)
+    private readonly string[][] sceneNamesByMaxPlayers = new string[][] {
+        new string[] { "Scene1_2P", "Scene2_2P" },  // Para 2 jugadores
+        new string[] { "Scene1_4P", "Scene2_4P" },  // Para 4 jugadores
+        new string[] { "Scene1_6P", "Scene2_6P" },  // Para 6 jugadores
+        new string[] { "Scene1_8P", "Scene2_8P" }   // Para 8 jugadores
+    };
+
     private string SavePath =>
         Path.Combine(Application.persistentDataPath, "scenario.json");
 
@@ -51,7 +59,7 @@ public class SessionSceneLoader : MonoBehaviour
             return scenarioSelector.GetCurrentSceneName();
         }
 
-        // Fallback: Lee directamente del JSON
+        // Fallback: Lee directamente del JSON y usa arrays por maxPlayers
         if (!File.Exists(SavePath))
         {
             return defaultScene;
@@ -60,12 +68,12 @@ public class SessionSceneLoader : MonoBehaviour
         string json = File.ReadAllText(SavePath);
         ScenarioData data = JsonUtility.FromJson<ScenarioData>(json);
 
-        int index = Mathf.Clamp(data.scenarioIndex, 1, 3) - 1;  // Ajuste para array (asume 3 escenas, ajusta si cambias)
-        string[] fallbackScenes = new string[] { "Escena1", "Escena2", "Escena3" };  // Debe coincidir con el array en ScenarioCustomizationSelector
+        // Usa maxPlayersIndex para determinar el array de escenas
+        int maxPlayersIndex = Mathf.Clamp(data.maxPlayersIndex, 0, sceneNamesByMaxPlayers.Length - 1);
+        string[] scenes = sceneNamesByMaxPlayers[maxPlayersIndex];
 
-        if (index >= 0 && index < fallbackScenes.Length)
-            return fallbackScenes[index];
-        else
-            return defaultScene;
+        int scenarioIndex = Mathf.Clamp(data.scenarioIndex - 1, 0, scenes.Length - 1);  // Ajuste para array
+
+        return scenes[scenarioIndex];
     }
 }
