@@ -9,11 +9,17 @@ EditorBuildSettings:
     path: Assets/NGO_Minimal_Setup/MainMenu.unity
     guid: 530d9b2560144aa42819a35ca5cba713
   - enabled: 1
-    path: Assets/NGO_Minimal_Setup/Gameplay.unity
+    path: Assets/NGO_Minimal_Setup/Scene1x4.unity
     guid: b0d1031fe43ea6542a88b29b84f3a860
   - enabled: 1
-    path: Assets/NGO_Minimal_Setup/GameplayAltBack.unity
+    path: Assets/NGO_Minimal_Setup/Scene2x4.unity
     guid: 1031975962daa6e4c8619377d86e4f1d
+  - enabled: 1
+    path: Assets/NGO_Minimal_Setup/Scene1x2.unity
+    guid: d2afceecfe5e10e43b5f1f976782cb10
+  - enabled: 1
+    path: Assets/NGO_Minimal_Setup/Scene2x2.unity
+    guid: 489a3c506945d5e4cb014373e48aefd0
   - enabled: 1
     path: Assets/NGO_Minimal_Setup/Empty.unity
     guid: 7e5ea7a6b147b2147831588b37e28d8b
