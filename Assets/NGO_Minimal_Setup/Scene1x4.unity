@@ -9322,7 +9322,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   quadRenderer: {fileID: 1724134650}
   videoPlayer: {fileID: 1724134648}
-  audioSource: {fileID: 1724134647}
+  mediaUrl: https://i.ytimg.com/vi/d7xMgJedN2s/maxresdefault.jpg
 --- !u!1 &1744000358
 GameObject:
   m_ObjectHideFlags: 0
