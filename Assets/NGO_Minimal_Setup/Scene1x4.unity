@@ -9175,7 +9175,7 @@ VideoPlayer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1724134645}
-  m_Enabled: 0
+  m_Enabled: 1
   m_VideoClip: {fileID: 0}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
@@ -9322,7 +9322,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   quadRenderer: {fileID: 1724134650}
   videoPlayer: {fileID: 1724134648}
-  mediaUrl: https://i.ytimg.com/vi/d7xMgJedN2s/maxresdefault.jpg
+  audioSource: {fileID: 1724134647}
+  mediaUrl: https://drive.google.com/file/d/1wai4eiy7XcBuY49xpP3uvCmBEtVpIVlS/view?usp=sharing
 --- !u!1 &1744000358
 GameObject:
   m_ObjectHideFlags: 0
