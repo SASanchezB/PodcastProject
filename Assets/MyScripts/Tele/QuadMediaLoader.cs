@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.Video;
 using System.Collections;
 using System.Text.RegularExpressions;
+using TMPro; // ← Importante para TMP_InputField
 
 public class QuadMediaLoader : NetworkBehaviour
 {
@@ -13,8 +14,12 @@ public class QuadMediaLoader : NetworkBehaviour
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private AudioSource audioSource;
 
+    [Header("UI References")]
+    [SerializeField] private GameObject panel;           // Panel que se togglea
+    [SerializeField] private TMP_InputField urlInputField; // TextMeshPro InputField
+
     [Header("Host URL Input")]
-    [SerializeField] private string mediaUrl; // El host pega la URL acá
+    [SerializeField] private string mediaUrl; // URL inicial (opcional)
 
     NetworkVariable<FixedString512Bytes> syncedMediaUrl =
         new NetworkVariable<FixedString512Bytes>(
@@ -38,9 +43,10 @@ public class QuadMediaLoader : NetworkBehaviour
         }
 
         if (audioSource != null)
-        {
             audioSource.playOnAwake = false;
-        }
+
+        if (panel != null)
+            panel.SetActive(false); // panel oculto al inicio
     }
 
     public override void OnNetworkSpawn()
@@ -53,11 +59,26 @@ public class QuadMediaLoader : NetworkBehaviour
         if (!IsHost)
             return;
 
+        // Toggle del panel con LeftShift
+        if (Input.GetKeyDown(KeyCode.LeftShift) && panel != null)   
+        {
+            panel.SetActive(!panel.activeSelf);
+        }
+
+        // Presioná TAB para aplicar URL del InputField
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            if (!string.IsNullOrEmpty(mediaUrl))
-                syncedMediaUrl.Value = ConvertToDirectLink(mediaUrl);
+            ApplyInputFieldUrl();
         }
+    }
+
+    public void ApplyInputFieldUrl()
+    {
+        if (urlInputField != null)
+            mediaUrl = urlInputField.text;
+
+        if (!string.IsNullOrEmpty(mediaUrl))
+            syncedMediaUrl.Value = ConvertToDirectLink(mediaUrl);
     }
 
     void OnMediaUrlChanged(FixedString512Bytes oldValue, FixedString512Bytes newValue)
@@ -71,7 +92,6 @@ public class QuadMediaLoader : NetworkBehaviour
         if (videoPlayer != null) videoPlayer.Stop();
         if (audioSource != null) audioSource.Stop();
 
-        // 🔹 Detección automática por Content-Type
         StartCoroutine(DetectAndLoad(url));
     }
 
@@ -91,21 +111,13 @@ public class QuadMediaLoader : NetworkBehaviour
         contentType = contentType.ToLower();
 
         if (contentType.StartsWith("image/"))
-        {
             StartCoroutine(DownloadImage(url));
-        }
         else if (contentType.StartsWith("video/"))
-        {
             PlayVideo(url);
-        }
         else if (contentType.StartsWith("audio/"))
-        {
             StartCoroutine(PlayAudio(url));
-        }
         else
-        {
             Debug.LogWarning("Tipo de contenido no soportado: " + contentType);
-        }
     }
     #endregion
 
@@ -156,9 +168,6 @@ public class QuadMediaLoader : NetworkBehaviour
     #endregion
 
     #region GOOGLE DRIVE / DROPBOX
-    /// <summary>
-    /// Convierte enlaces de Google Drive o Dropbox a links directos de descarga
-    /// </summary>
     string ConvertToDirectLink(string url)
     {
         url = url.Trim();
