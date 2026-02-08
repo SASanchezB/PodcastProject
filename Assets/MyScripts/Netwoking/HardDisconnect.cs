@@ -4,21 +4,23 @@ using Unity.Netcode;
 
 public class HardDisconnect : MonoBehaviour
 {
+    //No se si quedo obsoleto o este funciona
+
     [SerializeField] private string mainMenuScene = "MainMenu";
 
     public void DisconnectAndCleanup()
     {
-        // 1. Apagar Netcode (host o cliente)
+        // Apaga netcode
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.Shutdown();
             Destroy(NetworkManager.Singleton.gameObject);
         }
 
-        // 2. Destruir TODO lo que esté en DontDestroyOnLoad
+        // BORRA TODO LOS PERMANENTNES
         DestroyAllDontDestroyOnLoad();
 
-        // 3. Volver al menú (Widgets se reinician solos)
+        // vuelve al menu
         SceneManager.LoadScene(mainMenuScene);
     }
 

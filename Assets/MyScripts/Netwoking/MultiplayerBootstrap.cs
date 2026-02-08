@@ -5,24 +5,27 @@ using UnityEngine;
 
 public class MultiplayerBootstrap : MonoBehaviour
 {
+
+    // Obsoleto Tambien
+
     private async void Awake()
     {
-        // 1. Inicializar Unity Services
+        // Prende unity service
         if (UnityServices.State != ServicesInitializationState.Initialized)
         {
             await UnityServices.InitializeAsync();
         }
 
-        // 2. Autenticación
+        // Autenticacion
         if (!AuthenticationService.Instance.IsSignedIn)
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
         }
 
-        // 3. Inicializar Vivox (NO hay IsInitialized, se llama directo)
+        // Prende vivox
         await VivoxService.Instance.InitializeAsync();
 
-        // 4. Login Vivox
+        // Login Vivox
         if (!VivoxService.Instance.IsLoggedIn)
         {
             await VivoxService.Instance.LoginAsync();

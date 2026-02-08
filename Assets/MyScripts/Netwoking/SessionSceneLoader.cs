@@ -6,10 +6,10 @@ using System.IO;
 public class SessionSceneLoader : MonoBehaviour
 {
     [Header("Scenario Settings")]
-    [SerializeField] private ScenarioCustomizationSelector scenarioSelector;  // Asigna el GameObject con ScenarioCustomizationSelector en el Inspector
-    [SerializeField] private string defaultScene = "Escena1";  // Escena por defecto (ej. "Escena1")
+    [SerializeField] private ScenarioCustomizationSelector scenarioSelector;
+    [SerializeField] private string defaultScene = "Escena1";  // Escena por defecto por si hay una escena no cargada
 
-    // Arrays de escenas por maxPlayers (debe coincidir con ScenarioCustomizationSelector)
+    // Arrays de escenas por maxPlayers
     private readonly string[][] sceneNamesByMaxPlayers = new string[][] {
         new string[] { "Scene1_2P", "Scene2_2P" },  // Para 2 jugadores
         new string[] { "Scene1_4P", "Scene2_4P" },  // Para 4 jugadores
@@ -31,20 +31,20 @@ public class SessionSceneLoader : MonoBehaviour
         if (!NetworkManager.Singleton.IsHost)
             return;
 
-        // Obtén el nombre de la escena desde el selector o JSON
+        // Se selecciona la escena desde el JSON
         string sceneToLoad = GetSelectedSceneName();
 
-        // CAMBIO: Usa NetworkManager.SceneManager para sincronizar la escena a todos los clientes
+        // Se usa network manager para hacer la sincronizacion entre todos
         NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
 
-        // OPCIONAL: Notifica explícitamente a los clientes (por si LoadScene no sincroniza inmediatamente)
+        // En caso que la linea de arriba no funque, se tiene esta linea para notificarlos (se podria sacar esta linea, pero se deja por las dudas)
         NotifyClientsToLoadSceneClientRpc(sceneToLoad);
     }
 
     [ClientRpc]
     private void NotifyClientsToLoadSceneClientRpc(string sceneName)
     {
-        // Los clientes cargan la escena si no son el host (el host ya la cargó)
+        // Los clientes cargan la escena si no son el host (el host ya la tiene cargada)
         if (!NetworkManager.Singleton.IsServer)
         {
             SceneManager.LoadScene(sceneName);
@@ -53,13 +53,13 @@ public class SessionSceneLoader : MonoBehaviour
 
     private string GetSelectedSceneName()
     {
-        // Primero, intenta obtener desde el ScenarioCustomizationSelector si está asignado
+        // se lee desde el ScenarioCustomizationSelector
         if (scenarioSelector != null)
         {
             return scenarioSelector.GetCurrentSceneName();
         }
 
-        // Fallback: Lee directamente del JSON y usa arrays por maxPlayers
+        // Si falla, se lee el json y se usa el array de max
         if (!File.Exists(SavePath))
         {
             return defaultScene;
@@ -68,11 +68,11 @@ public class SessionSceneLoader : MonoBehaviour
         string json = File.ReadAllText(SavePath);
         ScenarioData data = JsonUtility.FromJson<ScenarioData>(json);
 
-        // Usa maxPlayersIndex para determinar el array de escenas
+        // Usa maxPlayersIndex para determinar el array de escenas, ya que los diferentes tamaños de lobby tienen diferentes escenas
         int maxPlayersIndex = Mathf.Clamp(data.maxPlayersIndex, 0, sceneNamesByMaxPlayers.Length - 1);
         string[] scenes = sceneNamesByMaxPlayers[maxPlayersIndex];
 
-        int scenarioIndex = Mathf.Clamp(data.scenarioIndex - 1, 0, scenes.Length - 1);  // Ajuste para array
+        int scenarioIndex = Mathf.Clamp(data.scenarioIndex - 1, 0, scenes.Length - 1); 
 
         return scenes[scenarioIndex];
     }

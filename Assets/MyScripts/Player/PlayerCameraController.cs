@@ -55,7 +55,7 @@ public class PlayerCameraController : NetworkBehaviour
     private InputAction lookRightAction;
 
 
-    // ================== NETCODE ==================
+    // ---------------------------- NETCODE
     public override void OnNetworkSpawn()
     {
         Debug.Log("<color=yellow>[PlayerCameraController] OnNetworkSpawn</color>");
@@ -127,7 +127,7 @@ public class PlayerCameraController : NetworkBehaviour
             toggleCameraAction.performed -= OnToggleCamaraInput;
     }
 
-    // ================== UPDATE ==================
+    // ------------------------------- UPDATE
     private void Update()
     {
         if (!IsOwner)
@@ -148,7 +148,7 @@ public class PlayerCameraController : NetworkBehaviour
         }
     }
 
-    // ================== INPUT CALLBACK ==================
+    // No me acuerdo que hacia esta funcion, es un fallback a los inputs
     private void OnToggleCamaraInput(InputAction.CallbackContext ctx)
     {
         Debug.Log("<color=green>[INPUT] ToggleCamara</color>");
@@ -159,7 +159,7 @@ public class PlayerCameraController : NetworkBehaviour
         StartCoroutine(ToggleCameraSmooth());
     }
 
-    // ================== NETWORK ==================
+    // Notwork
     private void HandleNetworkSend()
     {
         sendTimer += Time.deltaTime;
@@ -170,7 +170,7 @@ public class PlayerCameraController : NetworkBehaviour
         }
     }
 
-    // ================== CAMERA TOGGLE ==================
+    // -------------------------CAMBIAR DE PRIMERA A TERCERA
     private IEnumerator ToggleCameraSmooth()
     {
         if (fadeGroup == null)
@@ -210,7 +210,7 @@ public class PlayerCameraController : NetworkBehaviour
         Cursor.visible = !isFPS;
     }
 
-    // ================== FPS ROTATION ==================
+    // EN PRIMERA PERSONA --------------- Rotacion
     private void RotateCamera()
     {
         float mouseX = Input.GetAxisRaw("Mouse X") * sensitivity * Time.deltaTime;
@@ -245,7 +245,7 @@ public class PlayerCameraController : NetworkBehaviour
         headTransform.localRotation = Quaternion.Euler(rotationX, currentHeadYaw, 0f);
     }
 
-    // ================== RPC ==================
+    // Mandar info al server RPC
     [ServerRpc]
     private void SendRotationToServerServerRpc(float rotX, float rotY, float headYaw)
     {
@@ -266,7 +266,7 @@ public class PlayerCameraController : NetworkBehaviour
         targetHeadRot = targetBodyRot * localHeadRot;
     }
 
-    // ================== REMOTE ==================
+    // Remote interpolation
     private void ApplyRemoteInterpolation()
     {
         smoothBodyRot = Quaternion.Slerp(
@@ -280,7 +280,7 @@ public class PlayerCameraController : NetworkBehaviour
         headTransform.rotation = smoothHeadRot;
     }
 
-    // ================== KEY ROTATION (LEGACY) ==================
+    // TERCERA PERSONA ------------------------- Rotacion por tecla
     private void RotateCameraByKeys()
     {
         float inputYaw = 0f;
@@ -319,7 +319,7 @@ public class PlayerCameraController : NetworkBehaviour
     }
 
 
-    // ================== LEGACY (NO SE BORRA) ==================
+    // Test
     public void OnToggleCamara()
     {
         Debug.Log("OnToggleCamara (legacy) llamado");

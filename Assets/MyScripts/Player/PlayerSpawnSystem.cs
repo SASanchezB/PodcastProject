@@ -61,17 +61,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        // Eliminé el loop que re-ubicaba a todos los clientes conectados.
-        // Ahora solo se ubican nuevos jugadores cuando se unen, y los existentes se quedan en su lugar.
-        // Si necesitas ubicar a players ya conectados al inicio (por ejemplo, si el GameManager se spawnea tarde),
-        // puedes agregar lógica aquí, pero por ahora, asumimos que los players se ubican solo al unirse.
     }
-
-    // ------------Api publica [robustazo]------------
-    /// <summary>
-    /// Llamar desde el Player cuando su NetworkObject ya existe en el servidor.
-    /// </summary>
     public void AssignSpawnForPlayer(NetworkObject playerObject)
     {
         if (!IsServer)
@@ -86,7 +76,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
             return;
         }
 
-        // Asegurarnos de que tenemos spawn points cargados
+        // Se tienen que tener spawn points cargados
         if (spawnPoints == null || spawnPoints.Count == 0)
         {
             GameObject[] objs = GameObject.FindGameObjectsWithTag(spawnPointTag);
@@ -115,7 +105,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
         //playerObject.transform.rotation = chosen.rotation;
     }
 
-    // ------------Manejo por callbacks (fallbacks)------------
+    // ------------Manejo por callbacks (fallbacks)
     private void OnPlayerJoin(ulong clientId)
     {
         if (!IsServer) return;
@@ -133,7 +123,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
             if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client)
                 && client.PlayerObject != null)
             {
-                // Si ya existe, asignamos mediante la API pública
+                // Si ya estan se asignan mediante la api
                 AssignSpawnForPlayer(client.PlayerObject);
                 yield break;
             }
@@ -142,7 +132,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
             yield return null;
         }
 
-        // Intento final: si apareció después del timeout
+        // Por si aparecen despues del timer
         if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var connected)
             && connected.PlayerObject != null)
         {
@@ -154,7 +144,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
         }
     }
 
-    // -----------LOGICA DE SELECCION DE SILLA DE SPAWN-------------
+    // ----------- LOGICA DE SELECCION DE SILLA DE SPAWN
     private Transform GetFreeSpawnPoint(ulong clientId)
     {
         if (spawnPoints == null || spawnPoints.Count == 0) return null;
@@ -176,7 +166,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
             }
         }
 
-        // FALLBACK ALEATORIO
+        // FALLBACK
         int fallbackIdx = rng.Next(0, count);
         Debug.LogWarning($"GetFreeSpawnPoint: todos ocupados, fallback '{spawnPoints[fallbackIdx].name}'");
         return spawnPoints[fallbackIdx];
@@ -196,7 +186,7 @@ public class PlayerSpawnSystem : NetworkBehaviour
         return false;
     }
 
-    // Fisher–Yates shuffle usando rng
+    // shuffle (usando fisher yates) usando rng
     private void ShuffleList<T>(List<T> list)
     {
         int n = list.Count;

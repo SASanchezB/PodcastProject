@@ -7,6 +7,9 @@ using Unity.Netcode;
 
 public class FullMultiplayerReset : MonoBehaviour
 {
+
+    //NO SE SI ESTE SCRIPT SE USA O QUEDO OBSOLETO
+
     private void Awake()
     {
         // 1. Apagar Netcode

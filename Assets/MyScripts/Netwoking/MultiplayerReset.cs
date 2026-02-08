@@ -4,15 +4,18 @@ using Unity.Services.Authentication;
 
 public class MultiplayerReset : MonoBehaviour
 {
+
+    //Creo que obsoleto, no cerraba para el segundo
+
     private async void Awake()
     {
-        // 1. Si había sesión de auth, cerrarla
+        // 1 - Si había sesion de auth -> cerrarla
         if (AuthenticationService.Instance.IsSignedIn)
         {
             AuthenticationService.Instance.SignOut();
         }
 
-        // 2. Reinicializar Unity Services
+        // 2 - Reiniciar Unity Services
         if (UnityServices.State != ServicesInitializationState.Initialized)
         {
             await UnityServices.InitializeAsync();

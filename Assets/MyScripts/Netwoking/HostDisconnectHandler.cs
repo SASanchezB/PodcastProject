@@ -10,17 +10,17 @@ public class HostDisconnectHandler : NetworkBehaviour
     {
         if (!NetworkManager.Singleton.IsServer) return;
 
-        // Envía a todos los clientes al menú
+        // Envía a todos los clientes al menu
         ForceClientsToMenuClientRpc();
 
-        // El host también se va al menú
+        // El host también se va al menu
         SceneManager.LoadScene(mainMenuScene);
     }
 
     [ClientRpc]
     private void ForceClientsToMenuClientRpc()
     {
-        // Evita que el host ejecute esto dos veces
+        // Para evitar mandar lo mismo al host
         if (NetworkManager.Singleton.IsServer) return;
 
         SceneManager.LoadScene(mainMenuScene);

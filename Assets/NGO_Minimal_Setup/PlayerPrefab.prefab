@@ -650,7 +650,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2072137055
+  GlobalObjectIdHash: 1712268375
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -914,6 +914,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 41be83a6-23ff-4687-8e45-a71eb9873dd2
     m_ActionName: 'SinglePlayer/ToggleCamara[/Keyboard/v]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 20e50d4a-1a66-49c8-a971-5f7f472bb5e8
+    m_ActionName: 'SinglePlayer/LookUp[/Keyboard/w]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3d0e4171-728c-4ae9-b6ba-dd64a7898329
+    m_ActionName: 'SinglePlayer/LookDown[/Keyboard/s]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 5b3cbf9f-9d8a-4a29-8f82-7f6f33eb1fa8
+    m_ActionName: 'SinglePlayer/LookRight[/Keyboard/d]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2b04c49f-4c8b-4f4a-8298-684d7fd89ba7
+    m_ActionName: 'SinglePlayer/LookLeft[/Keyboard/a]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: SinglePlayer

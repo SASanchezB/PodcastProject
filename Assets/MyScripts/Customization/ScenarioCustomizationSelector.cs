@@ -13,13 +13,11 @@ public class ScenarioCustomizationSelector : MonoBehaviour
 
     [Header("Customization Settings")]
     [SerializeField] private int minValue = 1;
-    [SerializeField] private int maxValue = 3;  // Ajusta según cuántos escenarios tengas por maxPlayers
+    [SerializeField] private int maxValue = 3; 
 
-    // Nueva referencia: Asigna el WidgetConfiguration aquí
     [Header("Multiplayer Configuration")]
-    [SerializeField] private WidgetConfiguration widgetConfiguration;  // Asigna el ScriptableObject en el Inspector
+    [SerializeField] private WidgetConfiguration widgetConfiguration;
 
-    // Nuevos arrays: uno por cada maxPlayers (índice 0 = 2 players, 1 = 4, 2 = 6, 3 = 8)
     [Header("Scene Names by Max Players")]
     [Tooltip("Escenas para 2 jugadores")]
     [SerializeField] private string[] sceneNamesFor2Players = new string[] { "Scene1_2P", "Scene2_2P" };
@@ -30,21 +28,19 @@ public class ScenarioCustomizationSelector : MonoBehaviour
     [Tooltip("Escenas para 8 jugadores")]
     [SerializeField] private string[] sceneNamesFor8Players = new string[] { "Scene1_8P", "Scene2_8P" };
 
-    // Array combinado para acceso fácil (no editable en Inspector)
+    //Matriz
     private string[][] sceneNamesByMaxPlayers;
 
-    // Valores fijos para maxPlayers
     private readonly int[] maxPlayersOptions = { 2, 4, 6, 8 };
-    private int currentMaxPlayersIndex = 1;  // Por defecto: 4 (índice 1)
+    private int currentMaxPlayersIndex = 1;  // Valor por defecto (en este caso 4)
 
-    private int currentValue;  // Índice del escenario (1-based en UI, 0-based en array)
+    private int currentValue;  
 
     private string SavePath =>
         Path.Combine(Application.persistentDataPath, "scenario.json");
 
     private void Awake()
     {
-        // Inicializar el array combinado
         sceneNamesByMaxPlayers = new string[][] {
             sceneNamesFor2Players,
             sceneNamesFor4Players,
@@ -58,7 +54,6 @@ public class ScenarioCustomizationSelector : MonoBehaviour
         Debug.Log($"[ScenarioCustomizationSelector] Awake completado. MaxPlayers actual: {GetCurrentMaxPlayers()}");
     }
 
-    // Métodos para el escenario (igual que antes)
     public void Increase()
     {
         currentValue++;
@@ -79,7 +74,6 @@ public class ScenarioCustomizationSelector : MonoBehaviour
         UpdateUI();
     }
 
-    // Nuevos métodos para maxPlayers
     public void IncreaseMaxPlayers()
     {
         currentMaxPlayersIndex++;
@@ -113,7 +107,6 @@ public class ScenarioCustomizationSelector : MonoBehaviour
         }
     }
 
-    // Nuevo método: Actualiza WidgetConfiguration.MaxPlayers
     private void UpdateWidgetConfiguration()
     {
         if (widgetConfiguration != null)
@@ -122,7 +115,7 @@ public class ScenarioCustomizationSelector : MonoBehaviour
             Debug.Log($"[ScenarioCustomizationSelector] WidgetConfiguration.MaxPlayers actualizado a: {widgetConfiguration.MaxPlayers} (Instancia ID: {widgetConfiguration.GetInstanceID()})");
 
 #if UNITY_EDITOR
-            // Fuerza la actualización del Inspector
+            // PARA VER DESDE EL EDITOR
             EditorUtility.SetDirty(widgetConfiguration);
             AssetDatabase.SaveAssets();
 #endif
@@ -150,7 +143,7 @@ public class ScenarioCustomizationSelector : MonoBehaviour
         if (!File.Exists(SavePath))
         {
             currentValue = minValue;
-            currentMaxPlayersIndex = 1;  // Por defecto: 4
+            currentMaxPlayersIndex = 1;  // Por defecto 4
             return;
         }
 
@@ -161,18 +154,18 @@ public class ScenarioCustomizationSelector : MonoBehaviour
         currentMaxPlayersIndex = Mathf.Clamp(data.maxPlayersIndex, 0, maxPlayersOptions.Length - 1);
     }
 
-    // Método público para obtener el nombre de la escena actual (usado por SessionSceneLoader)
+    // Metodo para obtener el nombre de la escena con scene loader
     public string GetCurrentSceneName()
     {
         string[] currentScenes = sceneNamesByMaxPlayers[currentMaxPlayersIndex];
-        int index = currentValue - 1;  // Ajuste porque los arrays empiezan en 0
+        int index = currentValue - 1;  // Ajuste porque los arrays empiezan en 0 (Acordate de esto, aca estaba la falla que tenias)
         if (index >= 0 && index < currentScenes.Length)
             return currentScenes[index];
         else
-            return "Gameplay";  // Fallback si el índice no coincide
+            return "Gameplay";  // Por si falla
     }
 
-    // Método público para obtener el maxPlayers actual (útil para configurar el WidgetConfiguration)
+    // Metodo que obtiene maxPlayers 
     public int GetCurrentMaxPlayers()
     {
         return maxPlayersOptions[currentMaxPlayersIndex];
@@ -184,5 +177,5 @@ public class ScenarioCustomizationSelector : MonoBehaviour
 public class ScenarioData
 {
     public int scenarioIndex;
-    public int maxPlayersIndex;  // Nuevo: índice del maxPlayers
+    public int maxPlayersIndex;  // Guardar los max players
 }

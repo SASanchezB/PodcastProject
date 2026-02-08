@@ -11,7 +11,6 @@ public class PlayerSpawnRequester : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        // SOLO en el servidor intentamos asignar el spawn
         if (IsServer)
         {
             StartCoroutine(TryAssignSpawnCoroutine());
@@ -26,7 +25,7 @@ public class PlayerSpawnRequester : NetworkBehaviour
         {
             if (PlayerSpawnSystem.Instance != null)
             {
-                // Una vez que existe, asignamos el spawn
+                // Si existe, se sienta
                 PlayerSpawnSystem.Instance.AssignSpawnForPlayer(this.NetworkObject);
                 yield break;
             }
@@ -35,7 +34,7 @@ public class PlayerSpawnRequester : NetworkBehaviour
             yield return null;
         }
 
-        // Si no apareció después del timeout, logueamos un warning
+        // Warning por si falla
         Debug.LogWarning($"PlayerSpawnRequester: PlayerSpawnSystem.Instance no apareció después de {waitForInstanceTimeout}s. El player podría no posicionarse.");
     }
 }

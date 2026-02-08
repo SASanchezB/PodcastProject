@@ -1,11 +1,6 @@
 ﻿using UnityEngine;
 using Unity.Netcode;
 
-/// <summary>
-/// ESTE SCRIPT VA EN LA CÁMARA GLOBAL DE LA ESCENA (solo 1).
-/// Funciona aunque la cámara NO sea owner.
-/// Detecta input del cliente local y rota SU player local.
-/// </summary>
 public class GlobalCameraMouseLook : NetworkBehaviour
 {
     [Header("Sensibilidad del mouse")]
@@ -33,7 +28,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
     private Transform localBodyTransform;
     private Transform localHeadTransform;
 
-    // -------------------------LLAMADO DESDE PlayerCameraController (o directamente desde mi logica)--------------------------------
+    // ------------------------- LLAMADO DESDE PlayerCameraController (o directamente desde mi logica)
     public void SetUsingGlobalCamera(bool active)
     {
         usingGlobalCam = active;
@@ -44,13 +39,13 @@ public class GlobalCameraMouseLook : NetworkBehaviour
             idleTimer = 0f;
     }
 
-    // ---------------------------------------------------------
+    // 
     private void Start()
     {
         Debug.Log("[GlobalCameraMouseLook] START ejecutado.");
     }
 
-    // ---------------------------------------------------------
+    //
     private void Update()
     {
         Debug.Log("[GlobalCameraMouseLook] Update() ejecutándose.");
@@ -74,7 +69,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
             return;
         }
 
-        // --------------SE REQUIERE DEL CLICK IZQUIERDO---------------
+        // --------------SE REQUIERE DEL CLICK IZQUIERDO
         bool mousePressed = Input.GetMouseButton(0);
 
         if (requireMouseButton && !mousePressed)
@@ -83,7 +78,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
             return;
         }
 
-        // ---------------MOUSE INPUT--------------
+        // ---------------MOUSE INPUT
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
@@ -101,7 +96,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
             Debug.Log("[GlobalCameraMouseLook] Idle look activado.");
         }
 
-        // -------------ROTACION DEL CUERPO----------------
+        // -------------ROTACION DEL CUERPO
         currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * rotationSmoothSpeed);
 
         Quaternion bodyTarget = Quaternion.Euler(0f, currentYaw, 0f);
@@ -114,7 +109,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
 
         Debug.Log("[GlobalCameraMouseLook] Rotando cuerpo del player.");
 
-        // --------------Rotacion de cabeza (se puede comentar si uno no lo quiere)---------------
+        // --------------Rotacion de cabeza (se puede comentar si uno no lo quiere)
         if (localHeadTransform != null)
         {
             float headPitch = -mouseY * 0.2f;
@@ -136,7 +131,7 @@ public class GlobalCameraMouseLook : NetworkBehaviour
         }
     }
 
-    // ----------------------------BUSCA AL PLAYER LOCAL SIN IMPORTAR CUANDO SPAWNEA-----------------------------
+    // ----------------------------BUSCA AL PLAYER LOCAL SIN IMPORTAR CUANDO SPAWNEA
     private void EnsureLocalPlayerReference()
     {
         if (localPlayerObject != null && localPlayerObject.IsSpawned)

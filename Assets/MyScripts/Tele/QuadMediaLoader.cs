@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.Video;
 using System.Collections;
 using System.Text.RegularExpressions;
-using TMPro; // ← Importante para TMP_InputField
+using TMPro; 
 
 public class QuadMediaLoader : NetworkBehaviour
 {
@@ -15,11 +15,11 @@ public class QuadMediaLoader : NetworkBehaviour
     [SerializeField] private AudioSource audioSource;
 
     [Header("UI References")]
-    [SerializeField] private GameObject panel;           // Panel que se togglea
-    [SerializeField] private TMP_InputField urlInputField; // TextMeshPro InputField
+    [SerializeField] private GameObject panel;           // Panel del link
+    [SerializeField] private TMP_InputField urlInputField;
 
     [Header("Host URL Input")]
-    [SerializeField] private string mediaUrl; // URL inicial (opcional)
+    [SerializeField] private string mediaUrl; // Obsoleto (Solo para testing, ahora los links van en el urlinputfield
 
     NetworkVariable<FixedString512Bytes> syncedMediaUrl =
         new NetworkVariable<FixedString512Bytes>(
@@ -46,7 +46,7 @@ public class QuadMediaLoader : NetworkBehaviour
             audioSource.playOnAwake = false;
 
         if (panel != null)
-            panel.SetActive(false); // panel oculto al inicio
+            panel.SetActive(false); // POR LAS DUDAS, oculto el panel, en el testing habia veces que se activa... o lo dejaba prendido
     }
 
     public override void OnNetworkSpawn()
@@ -59,13 +59,13 @@ public class QuadMediaLoader : NetworkBehaviour
         if (!IsHost)
             return;
 
-        // Toggle del panel con LeftShift
+        // SHIFT -> ABRE EL PANEL
         if (Input.GetKeyDown(KeyCode.LeftShift) && panel != null)   
         {
             panel.SetActive(!panel.activeSelf);
         }
 
-        // Presioná TAB para aplicar URL del InputField
+        // TAB -> Manda o lee el enlace para el todo
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             ApplyInputFieldUrl();
@@ -103,6 +103,7 @@ public class QuadMediaLoader : NetworkBehaviour
 
         if (req.result != UnityWebRequest.Result.Success)
         {
+            //LINK NO VALIDO
             Debug.LogError("Error detectando tipo de contenido: " + req.error);
             yield break;
         }
@@ -117,6 +118,7 @@ public class QuadMediaLoader : NetworkBehaviour
         else if (contentType.StartsWith("audio/"))
             StartCoroutine(PlayAudio(url));
         else
+            //TIPO DE LINK NO SE PUEDE LEER
             Debug.LogWarning("Tipo de contenido no soportado: " + contentType);
     }
     #endregion
@@ -173,6 +175,7 @@ public class QuadMediaLoader : NetworkBehaviour
         url = url.Trim();
 
         // Google Drive
+        //PUEDE: - Ler imagenes y videos (SIEMPRE Y CUANDO NO SEAN MUY PESADOS O PIDAN UN SCANNER DE VIRUS
         if (url.Contains("drive.google.com"))
         {
             Regex rgx = new Regex(@"\/d\/([a-zA-Z0-9_-]+)");
@@ -185,6 +188,7 @@ public class QuadMediaLoader : NetworkBehaviour
         }
 
         // Dropbox
+        //No se llego a testear muy bien, con enlaces con videos de mas de una hora no funciono
         if (url.Contains("dropbox.com"))
         {
             if (url.Contains("?dl=0"))
