@@ -54,7 +54,12 @@ public class PlayerListUI : MonoBehaviour
 
                 if (nameComponent != null)
                 {
-                    sb.AppendLine(nameComponent.GetCurrentName());
+                    string playerName = nameComponent.GetCurrentName();
+
+                    if (nameComponent.IsReady())
+                        sb.AppendLine($"<color=green>{playerName}</color>");
+                    else
+                        sb.AppendLine(playerName);
                 }
             }
         }

@@ -7,7 +7,6 @@ public class NetworkPlayerName : NetworkBehaviour
 {
     [SerializeField] private TMP_Text nameText;
 
-    // Evento global para avisar cuando cualquier nombre cambia
     public static System.Action OnAnyNameChanged;
 
     private NetworkVariable<FixedString128Bytes> playerName =
@@ -17,12 +16,19 @@ public class NetworkPlayerName : NetworkBehaviour
             NetworkVariableWritePermission.Server
         );
 
+    private NetworkVariable<bool> isReady =
+        new NetworkVariable<bool>(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server
+        );
+
     public override void OnNetworkSpawn()
     {
         playerName.OnValueChanged += OnNameChanged;
-        nameText.text = playerName.Value.ToString();
+        isReady.OnValueChanged += OnReadyChanged;
 
-        // Avisamos que este jugador ya existe
+        UpdateVisual();
         OnAnyNameChanged?.Invoke();
 
         if (IsOwner && !string.IsNullOrWhiteSpace(PlayerNameUI.PendingPlayerName))
@@ -34,17 +40,27 @@ public class NetworkPlayerName : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         playerName.OnValueChanged -= OnNameChanged;
+        isReady.OnValueChanged -= OnReadyChanged;
 
-        // Avisamos que un jugador se fue
         OnAnyNameChanged?.Invoke();
     }
 
     private void OnNameChanged(FixedString128Bytes oldValue, FixedString128Bytes newValue)
     {
-        nameText.text = newValue.ToString();
-
-        // Avisamos que cambió un nombre
+        UpdateVisual();
         OnAnyNameChanged?.Invoke();
+    }
+
+    private void OnReadyChanged(bool oldValue, bool newValue)
+    {
+        UpdateVisual();
+        OnAnyNameChanged?.Invoke();
+    }
+
+    private void UpdateVisual()
+    {
+        nameText.text = playerName.Value.ToString();
+        nameText.color = isReady.Value ? Color.green : Color.black;
     }
 
     [ServerRpc]
@@ -54,6 +70,25 @@ public class NetworkPlayerName : NetworkBehaviour
             newName = " ";
 
         playerName.Value = new FixedString128Bytes(newName);
+    }
+
+    [ServerRpc]
+    public void SetReadyServerRpc(bool value)
+    {
+        isReady.Value = value;
+    }
+
+    // 🔥 ESTE MÉTODO ES LA SOLUCIÓN
+    public void ResetReadyServerSide()
+    {
+        if (!IsServer) return;
+
+        isReady.Value = false;
+    }
+
+    public bool IsReady()
+    {
+        return isReady.Value;
     }
 
     public string GetCurrentName()
