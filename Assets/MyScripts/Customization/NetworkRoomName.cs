@@ -19,7 +19,7 @@ public class NetworkRoomName : NetworkBehaviour
     {
         roomName.OnValueChanged += OnRoomNameChanged;
 
-        // Actualizar todos los textos con el valor actual
+        // Actualizar texto
         UpdateAllTexts(roomName.Value.ToString());
 
         // Solo el Host setea el nombre inicial
