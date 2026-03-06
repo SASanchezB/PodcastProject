@@ -12,7 +12,7 @@ public class LobbyReadyButton : NetworkBehaviour
     private NetworkPlayerName localPlayer;
     private bool localReady = false;
 
-    // 🔥 ESTADO GLOBAL SINCRONIZADO
+    // Sincronizar estado global
     private NetworkVariable<bool> gameStarted =
         new NetworkVariable<bool>(
             false,
@@ -24,7 +24,7 @@ public class LobbyReadyButton : NetworkBehaviour
     {
         gameStarted.OnValueChanged += OnGameStartedChanged;
 
-        // 🔥 Si alguien entra tarde y ya empezó
+        // QUE NO ACTIVE EL PANEL SI ALGUIEN SE UNA TARDE (soluciona un softlock)
         if (gameStarted.Value)
         {
             panelToDisable.SetActive(false);
@@ -65,7 +65,7 @@ public class LobbyReadyButton : NetworkBehaviour
     private void OnButtonClicked()
     {
         if (localPlayer == null) return;
-        if (gameStarted.Value) return; // 🔥 ya empezó
+        if (gameStarted.Value) return; 
 
         localReady = !localReady;
         localPlayer.SetReadyServerRpc(localReady);
@@ -115,7 +115,7 @@ public class LobbyReadyButton : NetworkBehaviour
 
     private void StartGame()
     {
-        gameStarted.Value = true; // 🔥 estado permanente
+        gameStarted.Value = true; // estado permanente
         ResetAllPlayersReady();
         panelToDisable.SetActive(false);
     }

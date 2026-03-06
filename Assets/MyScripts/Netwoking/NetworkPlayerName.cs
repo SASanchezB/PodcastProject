@@ -78,7 +78,6 @@ public class NetworkPlayerName : NetworkBehaviour
         isReady.Value = value;
     }
 
-    // 🔥 ESTE MÉTODO ES LA SOLUCIÓN
     public void ResetReadyServerSide()
     {
         if (!IsServer) return;
