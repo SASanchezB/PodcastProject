@@ -4,6 +4,9 @@ using Unity.Services.Vivox;
 
 public class VoiceParticleSync : NetworkBehaviour
 {
+
+    //Nota, funciona en online pero deberia probar con 2 pcs diferentes
+
     [SerializeField] private ParticleSystem talkingParticle;
 
     private VivoxParticipant localParticipant;
