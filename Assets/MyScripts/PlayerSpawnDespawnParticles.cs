@@ -4,13 +4,21 @@ using Unity.Netcode;
 public class PlayerSpawnDespawnParticles : NetworkBehaviour
 {
     [SerializeField] private ParticleSystem particle;
+    [SerializeField] private float despawnParticleLifetime = 2f;
 
     public override void OnNetworkSpawn()
     {
-        // Solo el servidor decide cuándo reproducir la partícula
         if (IsServer)
         {
             PlaySpawnParticleClientRpc();
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer)
+        {
+            PlayDespawnParticleClientRpc();
         }
     }
 
@@ -22,5 +30,29 @@ public class PlayerSpawnDespawnParticles : NetworkBehaviour
             Debug.Log("[SpawnParticle] Playing spawn particle for player " + OwnerClientId);
             particle.Play();
         }
+    }
+
+    [ClientRpc]
+    void PlayDespawnParticleClientRpc()
+    {
+        if (particle == null) return;
+
+        Debug.Log("[DespawnParticle] Playing despawn particle for player " + OwnerClientId);
+
+        Transform t = particle.transform;
+
+        // guardar posición antes de desparentar
+        Vector3 pos = t.position;
+
+        t.SetParent(null);
+
+        // restaurar transform limpio
+        t.position = pos;
+        t.rotation = Quaternion.identity;
+        t.localScale = Vector3.one;
+
+        particle.Play();
+
+        Destroy(particle.gameObject, despawnParticleLifetime);
     }
 }
