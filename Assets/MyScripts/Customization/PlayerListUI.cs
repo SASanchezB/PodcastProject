@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class PlayerListUI : MonoBehaviour
 {
-    [SerializeField] private Transform container; // objeto con HorizontalLayoutGroup
+    [SerializeField] private Transform container; // Aca va el layout
     [SerializeField] private GameObject playerItemPrefab;
 
     private List<GameObject> spawnedItems = new List<GameObject>();
@@ -43,14 +43,14 @@ public class PlayerListUI : MonoBehaviour
     {
         if (NetworkManager.Singleton == null) return;
 
-        // 🔴 Limpiar lista anterior
+        // Clean asi no se acumula
         foreach (var item in spawnedItems)
         {
             Destroy(item);
         }
         spawnedItems.Clear();
 
-        // 🔴 Crear nuevos items
+        // La creacion
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
             var playerObject = client.PlayerObject;
@@ -68,7 +68,7 @@ public class PlayerListUI : MonoBehaviour
 
                     PlayerListItemUI itemUI = obj.GetComponent<PlayerListItemUI>();
 
-                    bool showKick = true;
+                    bool showKick = NetworkManager.Singleton.IsHost && client.ClientId != NetworkManager.Singleton.LocalClientId;
 
                     itemUI.Setup(playerName, isReady, client.ClientId, showKick);
 

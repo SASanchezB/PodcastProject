@@ -23,7 +23,7 @@ public class PlayerListItemUI : MonoBehaviour
         kickButton.onClick.AddListener(HostCall);
     }
 
-    // En PlayerListItemUI.cs
+    // El kick, no se como hacerlo
     private void HostCall()
     {
         // 
