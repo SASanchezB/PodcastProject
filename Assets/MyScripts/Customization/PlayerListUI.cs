@@ -1,15 +1,17 @@
-using TMPro;
+﻿using TMPro;
 using Unity.Netcode;
 using UnityEngine;
-using System.Text;
+using System.Collections.Generic;
 
 public class PlayerListUI : MonoBehaviour
 {
-    [SerializeField] private TMP_Text playerListText;
+    [SerializeField] private Transform container; // objeto con HorizontalLayoutGroup
+    [SerializeField] private GameObject playerItemPrefab;
+
+    private List<GameObject> spawnedItems = new List<GameObject>();
 
     private void Start()
     {
-        // Escuchamos cuando cualquier nombre cambia
         NetworkPlayerName.OnAnyNameChanged += UpdatePlayerList;
 
         if (NetworkManager.Singleton != null)
@@ -39,11 +41,16 @@ public class PlayerListUI : MonoBehaviour
 
     private void UpdatePlayerList()
     {
-        if (playerListText == null) return;
         if (NetworkManager.Singleton == null) return;
 
-        StringBuilder sb = new StringBuilder();
+        // 🔴 Limpiar lista anterior
+        foreach (var item in spawnedItems)
+        {
+            Destroy(item);
+        }
+        spawnedItems.Clear();
 
+        // 🔴 Crear nuevos items
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
             var playerObject = client.PlayerObject;
@@ -55,15 +62,19 @@ public class PlayerListUI : MonoBehaviour
                 if (nameComponent != null)
                 {
                     string playerName = nameComponent.GetCurrentName();
+                    bool isReady = nameComponent.IsReady();
 
-                    if (nameComponent.IsReady())
-                        sb.AppendLine($"<color=green>{playerName}</color>");
-                    else
-                        sb.AppendLine(playerName);
+                    GameObject obj = Instantiate(playerItemPrefab, container);
+
+                    PlayerListItemUI itemUI = obj.GetComponent<PlayerListItemUI>();
+
+                    bool showKick = true;
+
+                    itemUI.Setup(playerName, isReady, client.ClientId, showKick);
+
+                    spawnedItems.Add(obj);
                 }
             }
         }
-
-        playerListText.text = sb.ToString();
     }
 }
