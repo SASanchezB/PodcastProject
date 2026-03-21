@@ -10,19 +10,35 @@ public class ButtonKeyTrigger : MonoBehaviour
 
     private void Update()
     {
-        // Si todavía no encontramos al player, lo buscamos
+        // Busca al jugador
         if (playerKeyBool == null)
         {
-            playerKeyBool = FindAnyObjectByType<PlayerKeyBool>();
+            TryFindPlayer();
             return;
         }
+    }
 
-        // Si ya se activó una vez, no hacemos nada más
-        if (alreadyTriggered)
-            return;
+    private void TryFindPlayer()
+    {
+        var allPlayers = FindObjectsByType<PlayerKeyBool>(FindObjectsSortMode.None);
 
-        // Si el bool del player es true, simulamos el click
-        if (playerKeyBool.triggeredButtonKey)
+        foreach (var player in allPlayers)
+        {
+            if (player.IsOwner)
+            {
+                playerKeyBool = player;
+
+                playerKeyBool.triggeredButtonKey.OnValueChanged += OnTriggeredChanged;
+
+                Debug.Log("Player local asignado correctamente");
+                return;
+            }
+        }
+    }
+
+    private void OnTriggeredChanged(bool oldValue, bool newValue)
+    {
+        if (newValue && !alreadyTriggered)
         {
             SimulateClick();
             alreadyTriggered = true;

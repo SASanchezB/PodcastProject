@@ -1,20 +1,31 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerKeyBool : MonoBehaviour
+public class PlayerKeyBool : NetworkBehaviour
 {
-
-    public bool triggeredButtonKey = false;
-
-    private void Awake()
-    {
-        triggeredButtonKey = false;
-    }
+    public NetworkVariable<bool> triggeredButtonKey = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        // Solo el dueño del player maneja input
+        if (!IsOwner) return;
+
+        // Script para probar con la P, la use en debug
+        /*
+        if (!triggeredButtonKey.Value && Input.GetKeyDown(KeyCode.P))
         {
-            triggeredButtonKey = true;
+            SubmitTriggerServerRpc();
         }
+        */
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SubmitTriggerServerRpc()
+    {
+        triggeredButtonKey.Value = true;
     }
 }
