@@ -3,13 +3,17 @@
 public class PauseMenu : MonoBehaviour
 {
     [SerializeField] private GameObject pausePanel;
+    [SerializeField] private GameObject listPanel;
 
-    private bool isPaused = false;
+    [SerializeField] private bool isPaused = false;
 
     private void Awake()
     {
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        if (listPanel != null)
+            listPanel.SetActive(false);
     }
 
     private void Update()
@@ -21,6 +25,11 @@ public class PauseMenu : MonoBehaviour
     public void UnPause()
     {
         TogglePause();
+    }
+
+    public void UnPauseShowList()
+    {
+        listPanel.SetActive(true);
     }
 
     private void TogglePause()

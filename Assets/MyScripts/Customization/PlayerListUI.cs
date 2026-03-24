@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class PlayerListUI : MonoBehaviour
 {
-    [SerializeField] private Transform container; // Aca va el layout
+    [SerializeField] private List<Transform> containers; // cambio a lista
     [SerializeField] private GameObject playerItemPrefab;
 
     private List<GameObject> spawnedItems = new List<GameObject>();
@@ -43,14 +43,14 @@ public class PlayerListUI : MonoBehaviour
     {
         if (NetworkManager.Singleton == null) return;
 
-        // Clean asi no se acumula
+        // Limpiar instancias anteriores
         foreach (var item in spawnedItems)
         {
             Destroy(item);
         }
         spawnedItems.Clear();
 
-        // La creacion
+        // Crear nueva lista
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
             var playerObject = client.PlayerObject;
@@ -64,15 +64,18 @@ public class PlayerListUI : MonoBehaviour
                     string playerName = nameComponent.GetCurrentName();
                     bool isReady = nameComponent.IsReady();
 
-                    GameObject obj = Instantiate(playerItemPrefab, container);
-
-                    PlayerListItemUI itemUI = obj.GetComponent<PlayerListItemUI>();
-
                     bool showKick = NetworkManager.Singleton.IsHost && client.ClientId != NetworkManager.Singleton.LocalClientId;
 
-                    itemUI.Setup(playerName, isReady, client.ClientId, showKick);
+                    // Instanciar en TODOS los containers
+                    foreach (var container in containers)
+                    {
+                        GameObject obj = Instantiate(playerItemPrefab, container);
 
-                    spawnedItems.Add(obj);
+                        PlayerListItemUI itemUI = obj.GetComponent<PlayerListItemUI>();
+                        itemUI.Setup(playerName, isReady, client.ClientId, showKick);
+
+                        spawnedItems.Add(obj);
+                    }
                 }
             }
         }
