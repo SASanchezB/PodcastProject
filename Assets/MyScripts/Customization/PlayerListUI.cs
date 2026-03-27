@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class PlayerListUI : MonoBehaviour
 {
-    [SerializeField] private List<Transform> containers; // cambio a lista
+    [SerializeField] private List<Transform> containers;
     [SerializeField] private GameObject playerItemPrefab;
 
     private List<GameObject> spawnedItems = new List<GameObject>();
@@ -67,12 +67,19 @@ public class PlayerListUI : MonoBehaviour
                     bool showKick = NetworkManager.Singleton.IsHost && client.ClientId != NetworkManager.Singleton.LocalClientId;
 
                     // Instanciar en TODOS los containers
-                    foreach (var container in containers)
+                    for (int i = 0; i < containers.Count; i++)
                     {
-                        GameObject obj = Instantiate(playerItemPrefab, container);
+                        var container = containers[i];
 
+                        GameObject obj = Instantiate(playerItemPrefab, container);
                         PlayerListItemUI itemUI = obj.GetComponent<PlayerListItemUI>();
-                        itemUI.Setup(playerName, isReady, client.ClientId, showKick);
+
+                        // Solo permitir botón si:
+                        // - Es el primer container (i == 0)
+                        // - O si sos host (y no sos vos mismo)
+                        bool allowKickButton = (i == 0) && showKick;
+
+                        itemUI.Setup(playerName, isReady, client.ClientId, allowKickButton);
 
                         spawnedItems.Add(obj);
                     }
